@@ -1,0 +1,6 @@
+version: '3.9'
+services:
+  openpose:
+    build: .
+    volumes:
+      - ./src:/src
