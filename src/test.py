@@ -1,3 +1,4 @@
+# This file was inspired from https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/examples/tutorial_api_python/01_body_from_image.py
 import sys
 import cv2
 import os
