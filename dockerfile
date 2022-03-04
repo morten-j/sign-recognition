@@ -1,7 +1,7 @@
 FROM nvidia/cuda:11.5.1-cudnn8-devel-ubuntu20.04
 
 RUN apt-get update && \ 
-DEBIAN_FRONTEND=noninteractive apt-get install -y git cmake g++ protobuf-compiler libgoogle-glog-dev libopencv-dev libboost-program-options-dev libboost-test-dev libboost-python-dev libboost-all-dev libhdf5-dev libatlas-base-dev python3-dev python3-pip
+DEBIAN_FRONTEND=noninteractive apt-get install -y git cmake g++ protobuf-compiler libgoogle-glog-dev libopencv-dev libboost-all-dev libhdf5-dev libatlas-base-dev python3-dev python3-pip
 RUN pip3 install numpy opencv-python
 
 #Get openpose source files
