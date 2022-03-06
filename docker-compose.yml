@@ -1,6 +1,23 @@
 version: '3.9'
 services:
-  openpose:
-    build: .
+  openpose-gpu:
+    build: 
+      context: .
+      dockerfile: Dockerfile-GPU
     volumes:
       - ./src:/src
+    profiles: ["GPU"]
+    deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+                count: 1
+                capabilities: [gpu]
+  openpose-cpu:
+    build: 
+      context: .
+      dockerfile: Dockerfile-CPU
+    volumes:
+      - ./src:/src
+    profiles: ["CPU"]
