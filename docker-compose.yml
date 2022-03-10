@@ -1,0 +1,7 @@
+services:
+  sanic:
+    build: ./PythonAPI
+    volumes:
+      - ./PythonAPI/src/:/src
+    ports: 
+      - 1234:8000
