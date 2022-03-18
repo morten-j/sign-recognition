@@ -36,3 +36,8 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+
+sw.js
+sw.js.map
+workbox-*
