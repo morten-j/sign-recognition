@@ -1,0 +1,15 @@
+services:
+  nextjs:
+    image: node:lts
+    command: npm run dev
+    working_dir: /nextjs/
+    volumes:
+      - ./nextjs/:/nextjs/
+    ports:
+      - 80:3000
+  sanic:
+    build: ./sanic
+    volumes:
+      - ./sanic/src/:/sanic/src
+    ports: 
+      - 8080:8000
