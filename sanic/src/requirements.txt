@@ -1,1 +1,5 @@
 sanic[ext]
+tensorflow
+numpy
+matplotlib
+pyqt5
