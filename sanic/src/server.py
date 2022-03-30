@@ -13,7 +13,7 @@ async def hello_world(request):
 @app.post("/api/mediapipe")
 @openapi.parameter("flip", bool, description="Whether the video is flipped.")
 async def mediapipe(request):
-    flipped = request.args.get("flip") # TODO: Have opencv flip the video if video is flipped. image = cv2.flip(cv2.imread(file), 1)
+    flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
     with tempfile.NamedTemporaryFile() as temp:
