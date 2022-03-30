@@ -18,28 +18,29 @@ def getImagesFromVideo(video):
 
         yield image
 
-def getLandmarksFromVideo(video, flipped):
+def getLandmarksFromVideo(video, flipped=False):
     results = []
     with mp_hands.Hands(
         model_complexity=0,
         max_num_hands=2,
         min_detection_confidence=0.5,
-        min_tracking_confidence=0.5) as MP_HandsTracker:
+        min_tracking_confidence=0.5) as handtracker:
         
         
         for image in getImagesFromVideo(video):
             if flipped:
                 image = cv2.flip(image, 1)
 
-            result = MP_HandsTracker.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            result = handtracker.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
-            hands = [[],[]] # [0] == left | [1] == right
+            hands = {'left': [], 'right': []}
             for index, hand_landmarks in enumerate(result.multi_hand_landmarks):
+                handedness = 'left' if index == 0 else "right"
 
                 for landmark in hand_landmarks.landmark:
-                    hands[index].append({'x': landmark.x, 'y': landmark.y, 'z': landmark.z})
+                    hands[handedness].append({'x': landmark.x, 'y': landmark.y, 'z': landmark.z})
                 
             results.append(hands)
 
-        print(f'Frame 1, lefthand, wrist: {results[0][0][0]}')
+        print(f'Frame 1, left-hand, wrist: {results[0]["left"][0]}')
         return results
