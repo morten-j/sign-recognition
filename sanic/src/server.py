@@ -18,5 +18,5 @@ async def mediapipe(request):
 
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
-
+        
         return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
