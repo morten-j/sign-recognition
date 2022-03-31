@@ -5,18 +5,20 @@ mp_hands = mp.solutions.hands
 
 # Python Generator that yields an image every call
 def getImagesFromVideo(video):
-    cvVideoWrapper = cv2.VideoCapture(video)
+    videoWrapper = cv2.VideoCapture(video)
 
-    if cvVideoWrapper.isOpened() == False:
+    if videoWrapper.isOpened() == False:
         raise Exception("Could not open video")
     
-    while cvVideoWrapper.isOpened():
-        wasReadSuccess, image = cvVideoWrapper.read()
+    while videoWrapper.isOpened():
+        wasReadSuccess, image = videoWrapper.read()
 
-        if not wasReadSuccess:
-            break
+        if wasReadSuccess == False:
+            break # End once video is done reading.
 
         yield image
+        
+    videoWrapper.release()
 
 def getLandmarksFromVideo(video, flipped=False):
     results = []
