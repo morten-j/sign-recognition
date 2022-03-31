@@ -37,7 +37,7 @@ async def hands(request):
     responses:
       '200':
         description: Returns json object which is an array of frames. Every frame has a left and a right hand accociated,
-                    where every hand has 30 landmarks with x, y, z coordinates
+                    where every hand has 21 landmarks with x, y, z coordinates
         content:
             application/json: {}
     """
