@@ -22,8 +22,7 @@ async def hands(request):
     parameters:
       - name: flip
         in: query
-        description: Whether the video is flipped and we would need to flip it for you.
-        schema:
+        
           type: boolean
     requestBody:
         content:
@@ -49,3 +48,4 @@ async def hands(request):
         temp.write(videofile.body) # write the video into a temporary file
         
         return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
+      
