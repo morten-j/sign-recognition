@@ -7,14 +7,14 @@ export default function LearningPage() {
 
   return (
     <>
-      <div className="p-6 mx-auto bg-white rounded-xl shadow-lg flex-col w-2/3">
-        <h1 className="">suh</h1>
-        <div className="">
+      <div className="p-6 mx-auto bg-white rounded-xl shadow-lg flex flex-col w-2/3">
+        <h1 className="text-center">suh</h1>
+        <div className="self-center">
           { showWebcam ? null : <VideoPlayer /> }
           { showWebcam ? <WebcamCapture /> : null }
         </div>
       
-        <div className="" >
+        <div className="self-center" >
           {/* buttons */}
           { showWebcam ? null : <button onClick={() => setShowWebcam(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button> }
           { showWebcam ? <button onClick={() => setShowWebcam(false)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back to vid</button> : null }
