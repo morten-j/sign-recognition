@@ -10,9 +10,38 @@ app = Sanic("MyHelloWorldApp")
 async def hello_world(request):
     return text("Hello, world.")
 
-@app.post("/api/mediapipe")
+@app.post("/api/hands")
 @openapi.parameter("flip", bool, description="Whether the video is flipped.")
-async def mediapipe(request):
+async def hands(request):
+    """
+    Send a video and recieve hand keypoints for every frame. 
+    openapi:
+    operationId: hands
+    tags:
+      - Mediapipe
+    parameters:
+      - name: flip
+        in: query
+        description: Whether the video is flipped and we would need to flip it for you.
+        schema:
+          type: boolean
+    requestBody:
+        content:
+            multipart/form-data:
+                schema:
+                    type: object
+                    properties:
+                        video:
+                            type: string
+                            format: binary
+    responses:
+      '200':
+        description: Returns json object which is an array of frames. Every frame has a left and a right hand accociated,
+                    where every hand has 30 landmarks with x, y, z coordinates
+        content:
+            application/json: {}
+    """
+
     flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
