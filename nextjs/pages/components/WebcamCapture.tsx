@@ -38,6 +38,11 @@ export default function WebcamCapture() {
         const blob = new Blob(recordedChunks, {
             type: "video/webm"
         });
+
+        let fd = new FormData();
+        fd.append("video", blob);
+        fetch("http://localhost/api/uploadVideo", {method: "POST", body: fd}); // Send to upload API
+
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         document.body.appendChild(a);
