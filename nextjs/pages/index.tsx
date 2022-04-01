@@ -8,7 +8,7 @@ export default function LearningPage() {
   return (
     <>
       <div className="p-6 mx-auto bg-white rounded-xl shadow-lg flex flex-col w-2/3">
-        <h1 className="text-center">suh</h1>
+        <h1 className="text-center">ASL recognizer</h1>
         <div className="self-center">
           { showWebcam ? null : <VideoPlayer /> }
           { showWebcam ? <WebcamCapture /> : null }
