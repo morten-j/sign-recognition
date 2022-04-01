@@ -39,9 +39,10 @@ export default function WebcamCapture() {
             type: "video/webm"
         });
 
+        // Send to upload API 
         let fd = new FormData();
         fd.append("video", blob);
-        fetch("http://localhost/api/uploadVideo", {method: "POST", body: fd}); // Send to upload API
+        fetch("http://localhost/api/uploadVideo", {method: "POST", body: fd});   
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
