@@ -22,8 +22,7 @@ async def hands(request):
     parameters:
       - name: flip
         in: query
-        
-          type: boolean
+        type: boolean
     requestBody:
         content:
             multipart/form-data:
@@ -40,12 +39,13 @@ async def hands(request):
         content:
             application/json: {}
     """
-
     flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
         
-        return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
-      
+        res = json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
+        print(res)
+        return res
+  
