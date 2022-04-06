@@ -40,7 +40,7 @@ export default function WebcamCapture() {
             type: "video/webm"
         });
 
-        // Send to upload API 
+        // Send to upload Python server 
         var fd = new FormData();
         fd.append("fname", "video.webm")
         fd.append("video", blob);
