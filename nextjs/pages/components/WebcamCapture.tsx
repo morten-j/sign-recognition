@@ -1,5 +1,6 @@
 import Webcam from "react-webcam";
 import React from "react";
+import { json } from "stream/consumers";
 
 export default function WebcamCapture() {
     const webcamRef = React.useRef(null);
@@ -40,16 +41,20 @@ export default function WebcamCapture() {
         });
 
         // Send to upload API 
-        let fd = new FormData();
+        var fd = new FormData();
+        fd.append("fname", "video.webm")
         fd.append("video", blob);
-        fetch("http://localhost/api/uploadVideo", {method: "POST", body: fd});   
-
+        fetch("http://localhost:8080/api/hands", {
+            method: "POST",
+            body: fd,
+        });
+    
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         document.body.appendChild(a);
-        a.href = url;
-        a.download = "signvid.webm";
-        a.click();
+        //a.href = url;
+        //a.download = "signvid.webm";
+        //a.click();
         window.URL.revokeObjectURL(url);
         setRecordedChunks([]);
         }
