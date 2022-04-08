@@ -7,3 +7,4 @@ pandas
 opencv-python
 imageio
 imutils
+mediapipe
