@@ -40,13 +40,11 @@ async def hands(request):
         content:
             application/json: {}
     """
+    
     flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
         
-        res = json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
-        print(res)
-        return res
-  
+        return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
