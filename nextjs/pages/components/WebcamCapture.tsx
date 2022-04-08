@@ -41,7 +41,7 @@ export default function WebcamCapture() {
         });
 
         // Send to upload Python server  
-        var fd = new FormData();
+        const fd = new FormData();
         fd.append("fname", "video.webm")
         fd.append("video", blob);
         fetch("http://localhost:8080/api/hands", {
