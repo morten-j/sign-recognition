@@ -51,9 +51,6 @@ export default function WebcamCapture() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         document.body.appendChild(a);
-        //a.href = url;
-        //a.download = "signvid.webm";
-        //a.click();
         window.URL.revokeObjectURL(url);
         setRecordedChunks([]);
         }
