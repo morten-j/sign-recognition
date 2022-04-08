@@ -1,6 +1,5 @@
 import Webcam from "react-webcam";
 import React from "react";
-import { json } from "stream/consumers";
 
 export default function WebcamCapture() {
     const webcamRef = React.useRef(null);
