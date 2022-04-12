@@ -48,9 +48,6 @@ export default function WebcamCapture() {
             body: fd,
         });
     
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        document.body.appendChild(a);
         window.URL.revokeObjectURL(url);
         setRecordedChunks([]);
         }
