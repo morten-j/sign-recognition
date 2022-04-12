@@ -38,12 +38,16 @@ export default function WebcamCapture() {
         const blob = new Blob(recordedChunks, {
             type: "video/webm"
         });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = "signvid.webm";
-        a.click();
+
+        // Send to upload Python server  
+        const fd = new FormData();
+        fd.append("fname", "video.webm")
+        fd.append("video", blob);
+        fetch("http://localhost:8080/api/hands", {
+            method: "POST",
+            body: fd,
+        });
+    
         window.URL.revokeObjectURL(url);
         setRecordedChunks([]);
         }
