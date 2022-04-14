@@ -36,6 +36,8 @@ def getLandmarksFromVideo(video, flipped=False):
 
             result = handtracker.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
+            if not result.multi_hand_landmarks:
+                continue
             hands = {'left': [], 'right': []}
 
             for index, hand_landmarks in enumerate(result.multi_hand_landmarks):
