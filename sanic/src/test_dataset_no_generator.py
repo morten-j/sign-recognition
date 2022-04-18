@@ -1,20 +1,61 @@
-import keras
+import tensorflow.keras as keras
 import numpy as np
 import matplotlib.pyplot as plt
 import utils
 import data_generator
 import tensorflow as tf
+import json
+import os
 
 partition, labels, classes = utils.get_partitions_and_labels()
 data = []
 
-for file in partition["train"]:
-    data.append(np.load('video/numpy_formated_landmarks/' + file + '.npy', allow_pickle=True))
+
+#for file in partition["train"]:
+#    with open(os.path.join("./video/landmarks/",file + ".json"), 'r') as f:
+#        data.append(json.load(f))
 
 #data.append(np.load('video/numpy_formated_landmarks/' + "07068" + '.npy', allow_pickle=True))
 
+#test = tf.convert_to_tensor(data[0][0])
 
-dataset = tf.data.Dataset.from_tensor_slices(data)
+#dataset = tf.data.Dataset.from_tensor_slices(data[0][0])
+
+
+
+
+
+
+
+for file in partition["train"]:
+    data.append(np.load('video/numpy_formated_landmarks/' + file + '.npy', allow_pickle=True))
+
+test = []
+
+for sign in data:
+#    print(len(sign))
+    test.append(tf.ragged.constant(sign))
+#    for frame in sign:
+#        print(len(frame))
+#        for landmarks in frame:
+#            print(len(landmarks))
+#            for coor in landmarks:
+#                print(len(coor))
+
+
+#data.append(np.load('video/numpy_formated_landmarks/' + "07068" + '.npy', allow_pickle=True))
+yo = []
+for blyat in test:
+    temp = blyat.to_tensor()
+    temp2 = tf.linalg.normalize(temp, axis = None)
+    temp3 = tf.convert_to_tensor(temp2[0])
+    #print(temp3)
+    #temp4 = tf.RaggedTensor.from_tensor(temp3, padding=0.0)
+    #print("lmao")
+    yo.append(temp3)
+
+
+dataset = tf.data.Dataset.from_tensor_slices(yo)
 
 # Find number of classes
 num_classes = len(np.unique(classes))
@@ -42,14 +83,14 @@ def make_model(input_shape):
     return keras.models.Model(inputs=input_layer, outputs=output_layer)
 
 
-model = make_model(input_shape=(17,3))
+model = make_model(input_shape=(42, 3))
 #keras.utils.plot_model(model, show_shapes=True)
 
 
 
 # Train the model
 epochs = 250
-batch_size = 32
+batch_size = 124
 
 callbacks = [
     keras.callbacks.ModelCheckpoint(
@@ -66,12 +107,12 @@ model.compile(
     metrics=['sparse_categorical_accuracy'],
 )
 history = model.fit(
-    x=training_generator,
-    y=validation_generator,
+    x=dataset,
+    #y=validation_generator,
     batch_size=batch_size,
     epochs=epochs,
     callbacks=callbacks,
-    validation_split=0.2,
+    #validation_split=0.2,
     verbose=1,
     use_multiprocessing=True,
     workers=6,
