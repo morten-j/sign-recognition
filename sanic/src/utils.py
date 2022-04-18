@@ -1,12 +1,14 @@
 import json
+import os
 
 
 def get_partitions_and_labels():
-    file_path = 'dataset'
+    file_path = 'dataset.json'
 
     with open(file_path) as ipf:
         content = json.load(ipf)
 
+    classes = []
     labels = dict()
     partition = dict()
     partition['train'] = []
@@ -14,10 +16,14 @@ def get_partitions_and_labels():
 
     for entry in content:
         gloss = entry['gloss']
+        classes.append(gloss)
 
         for instance in entry['instances']:
             split = instance['split']
             video_id = instance['video_id']
+            
+            if not os.path.exists("./video/" + video_id + ".mp4"):
+                continue
 
             labels[video_id] = gloss
 
@@ -30,4 +36,4 @@ def get_partitions_and_labels():
             else:
                 raise ValueError("Invalid split.")
 
-    return partition, labels
+    return partition, labels, classes

@@ -1,12 +1,13 @@
+import tensorflow as tf
 import keras
 import numpy as np
 
 
-class FeatureDataGenerator(keras.utils.Sequence):
-    def __init__(self, list_IDs, labels, batch_size=32, dim=(32,32,32), n_channels=1,
+class FeatureDataGenerator(tf.keras.utils.Sequence):
+    def __init__(self, list_IDs, labels, batch_size=32, size=(32,32,32), n_channels=1,
              n_classes=8, shuffle=True):
         'Initialization'
-        self.dim = dim
+        self.size = size
         self.batch_size = batch_size
         self.labels = labels
         self.list_IDs = list_IDs
@@ -24,13 +25,15 @@ class FeatureDataGenerator(keras.utils.Sequence):
     def __data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
-        X = np.empty((self.batch_size, *self.dim, self.n_channels))
+        #X = np.empty((self.batch_size, *self.size, self.n_channels))
+        X = np.empty((self.batch_size))
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
+            print(X)
             # Store sample
-            X[i,] = np.load('video/numpy_formated_landmarks/' + ID + '.json')
+            X[i,] = np.load('video/numpy_formated_landmarks/' + ID + '.npy', allow_pickle=True)
 
             # Store class
             y[i] = self.labels[ID]
