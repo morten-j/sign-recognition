@@ -1,7 +1,12 @@
 import ReactPlayer from "react-player";
+import React from 'react'
 
-export default function VideoPlayer() {
-    return (
-      <ReactPlayer url={'sign_videos/signvid.webm'} controls = {true} />
-    );
+type Props = {url: string}
+
+const VideoPlayer = ({url}: Props) => {
+  return (
+    <ReactPlayer url={url} controls={true} />
+  )
 }
+
+export default VideoPlayer
