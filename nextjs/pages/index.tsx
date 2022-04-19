@@ -15,9 +15,11 @@ export default function LearningPage() {
 
     return (
         <>
-            <SignTutorial signName={"Pizza"} show={showSignTutorial} closeModal={closeSignTutorial} />
-            <div className="p-6 mx-auto bg-slate-200 my-10 rounded-xl shadow-lg flex flex-col w-2/3 gap-8">
+            {showSignTutorial && <SignTutorial signName={"Pizza"} show={showSignTutorial} closeModal={closeSignTutorial} />}
+
+            <div className="p-6 mx-auto bg-slate-200 mt-10 rounded-xl shadow-lg flex flex-col w-fit gap-8">
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer</h1>
+
                 <div className="self-center">
                     {showWebcam ? <WebcamCapture /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
