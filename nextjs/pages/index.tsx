@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import VideoPlayer from "./components/VideoPlayer";
 import WebcamCapture from "./components/WebcamCapture";
 import SignTutorial from "./components/SignTutorial";
+import ReactPlayer from "react-player";
 
 export default function LearningPage() {
     const [showWebcam, setShowWebcam] = useState(false)
@@ -19,7 +19,7 @@ export default function LearningPage() {
             <div className="p-6 mx-auto bg-slate-200 my-10 rounded-xl shadow-lg flex flex-col w-2/3 gap-8">
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer</h1>
                 <div className="self-center">
-                    {showWebcam ? <WebcamCapture /> : <VideoPlayer url="sign_videos/signvid.webm" />}
+                    {showWebcam ? <WebcamCapture /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
 
                 <div className="self-center flex gap-2">
