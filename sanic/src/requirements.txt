@@ -7,4 +7,6 @@ pandas
 opencv-python
 imageio
 imutils
+sklearn
 mediapipe
+pickle5

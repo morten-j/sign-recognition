@@ -13,6 +13,7 @@ def get_partitions_and_labels():
     partition = dict()
     partition['train'] = []
     partition['validation'] = []
+    partition['split'] = dict()
 
     for entry in content:
         gloss = entry['gloss']
@@ -25,6 +26,7 @@ def get_partitions_and_labels():
             if not os.path.exists("./video/" + video_id + ".mp4"):
                 continue
 
+            partition['split'][video_id] = (instance['frame_start'], instance['frame_end'])
             labels[video_id] = gloss
 
             if split == 'train':
