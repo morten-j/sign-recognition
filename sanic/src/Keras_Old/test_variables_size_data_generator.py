@@ -2,7 +2,7 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import utils
-import data_generator
+import sanic.src.Keras_Old.data_generator as data_generator
 
 partition, labels, classes = utils.get_partitions_and_labels()
 

@@ -1,22 +1,55 @@
 import sklearn
 import pickle
 import numpy as np
-import tensorflow as tf
+import tensorflow
 import keras
-import matplotlib as plt
-plt.use("Agg")
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.style as pltstyle
+import argparse
+#plt.use("Agg")
 import cv2
 import os
 from imutils import paths
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import AveragePooling2D
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import SGD
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from imutils import paths
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-d", "--dataset", required=True,
+	help="path to input dataset folder")
+ap.add_argument("-m", "--model", required=True,
+	help="path to output serialized model")
+ap.add_argument("-l", "--label-bin", required=True,
+	help="path to output label binarizer")
+ap.add_argument("-e", "--epochs", type=int, default=25,
+	help="# of epochs to train our network for")
+ap.add_argument("-p", "--plot", type=str, default="plot.png",
+	help="path to output loss/accuracy plot")
+args = vars(ap.parse_args())
+
+
 
 LABELS = set(["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"])
 
 print("[INFO] loading images...")
-imagePaths = list(paths.list_images("./video/image_dataset/"))
+imagePaths = list(paths.list_images(args["dataset"]))
 data = []
 labels = []
 
 for imagePath in imagePaths:
+	# Extract the class from the path
 	label = imagePath.split(os.path.sep)[-2]
 
 	if label not in LABELS:
@@ -34,14 +67,14 @@ data = np.array(data)
 labels = np.array(labels)
 
 # Format: [0,0,0,0,0,1,0,0]
-lb = sklearn.preprocessing.LabelBinarizer()
+lb = LabelBinarizer()
 labels = lb.fit_transform(labels)
 
-(trainX, testX, trainY, testY) = sklearn.model_selection.train_test_split(data, labels,
+(trainX, testX, trainY, testY) = train_test_split(data, labels,
 	test_size=0.20, stratify=labels, random_state=42)
 
 # initialize the training data augmentation object
-trainAug = keras.preprocessing.image.ImageDataGenerator(
+trainAug = ImageDataGenerator(
 	rotation_range=30,
 	zoom_range=0.15,
 	width_shift_range=0.2,
@@ -51,7 +84,8 @@ trainAug = keras.preprocessing.image.ImageDataGenerator(
 	fill_mode="nearest")
 # initialize the validation/testing data augmentation object (which
 # we'll be adding mean subtraction to)
-valAug = keras.preprocessing.image.ImageDataGenerator()
+valAug = ImageDataGenerator()
+
 # define the ImageNet mean subtraction (in RGB order) and set the
 # the mean subtraction value for each of the data augmentation
 # objects
@@ -62,28 +96,40 @@ valAug.mean = mean
 
 # load the ResNet-50 network, ensuring the head FC layer sets are left
 # off
-baseModel = keras.applications.ResNet50(weights="imagenet", include_top=False,
-	input_tensor=keras.layers.Input(shape=(224, 224, 3)))
+baseModel = ResNet50(weights="imagenet", include_top=False,
+	input_tensor=Input(shape=(224, 224, 3)))
 # construct the head of the model that will be placed on top of the
 # the base model
 headModel = baseModel.output
-headModel = keras.layers.AveragePooling2D(pool_size=(7, 7))(headModel)
-headModel = keras.layers.Flatten(name="flatten")(headModel)
-headModel = keras.layers.Dense(512, activation="relu")(headModel)
-headModel = keras.layers.Dropout(0.5)(headModel)
-headModel = keras.layers.Dense(len(lb.classes_), activation="softmax")(headModel)
+headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
+headModel = Flatten(name="flatten")(headModel)
+headModel = Dense(512, activation="relu")(headModel)
+headModel = Dropout(0.5)(headModel)
+headModel = Dense(len(lb.classes_), activation="softmax")(headModel)
 # place the head FC model on top of the base model (this will become
 # the actual model we will train)
-model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
+model = Model(inputs=baseModel.input, outputs=headModel)
 # loop over all layers in the base model and freeze them so they will
 # *not* be updated during the training process
 for layer in baseModel.layers:
 	layer.trainable = False
 
+
+callbacks = [
+    keras.callbacks.ModelCheckpoint(
+        "test_model.h5", save_best_only=True, monitor="val_loss"
+    ),
+    keras.callbacks.ReduceLROnPlateau(
+        monitor="loss", factor=0.5, patience=50, min_lr=0.0001
+    ),
+    keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
+]
+
+
 # compile our model (this needs to be done after our setting our
 # layers to being non-trainable)
 print("[INFO] compiling model...")
-opt = keras.optimizers.SGD(lr=1e-4, momentum=0.9, decay=1e-4 / 50)
+opt = SGD(lr=1e-4, momentum=0.9, decay=1e-4 / args["epochs"])
 model.compile(loss="categorical_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 # train the head of the network for a few epochs (all other layers
@@ -95,16 +141,17 @@ H = model.fit(
 	steps_per_epoch=len(trainX) // 32,
 	validation_data=valAug.flow(testX, testY),
 	validation_steps=len(testX) // 32,
-	epochs=50)
+	epochs=args["epochs"],
+	callbacks=callbacks)
 
 # evaluate the network
 print("[INFO] evaluating network...")
 predictions = model.predict(x=testX.astype("float32"), batch_size=32)
-print(sklearn.metrics.classification_report(testY.argmax(axis=1),
+print(classification_report(testY.argmax(axis=1),
 	predictions.argmax(axis=1), target_names=lb.classes_))
 # plot the training loss and accuracy
-N = 50
-plt.style.use("ggplot")
+N = args["epochs"]
+pltstyle.use("ggplot")
 plt.figure()
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
@@ -114,13 +161,13 @@ plt.title("Training Loss and Accuracy on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
-plt.savefig("plot.jpg")
+plt.savefig(args["plot"])
 
 
 # serialize the model to disk
 print("[INFO] serializing network...")
-model.save("test_run", save_format="h5")
+model.save(args["model"], save_format="h5")
 # serialize the label binarizer to disk
-f = open("lb.pickle", "wb")
+f = open(args["label_bin"], "wb")
 f.write(pickle.dumps(lb))
 f.close()
