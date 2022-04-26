@@ -8,12 +8,12 @@ type Props = {
     closeModal: () => void,
 }
 
-const SignTutorial = ({signName, closeModal, url}: Props) => {
+export default function SignTutorial({ signName, url, closeModal }: Props ) {
 
     useKeyPress("Escape", closeModal);
 
     return (
-    <div onClick={closeModal} className='w-full h-full bg-gray-900 bg-opacity-80 top-0 fixed sticky-10s z-50 overflow-scroll'>
+        <div onClick={closeModal} className='w-full h-full bg-gray-900 bg-opacity-80 top-0 fixed sticky-10s z-50 overflow-scroll'>
             <div onClick={(e) => e.stopPropagation()} className="min-w-fit max-w-lg p-10 m-auto items-center mt-16 flex flex-col bg-white gap-5 rounded">
 
                 <button onClick={closeModal} className="text-gray-800 absolute top-2 right-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800">
@@ -31,14 +31,10 @@ const SignTutorial = ({signName, closeModal, url}: Props) => {
                     <ReactPlayer url={url} playing={true} controls={false} loop={true} width="" height="" />
                 </div>
                 
-
                 <button onClick={closeModal} className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                     I'm Ready!
                 </button>
-
             </div>
-    </div>
+        </div>
     )
 }
-
-export default SignTutorial

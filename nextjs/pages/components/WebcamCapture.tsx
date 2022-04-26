@@ -10,20 +10,20 @@ export default function WebcamCapture() {
     const handleStartCaptureClick = React.useCallback(() => {
         setCapturing(true);
         mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-        mimeType: "video/webm"
+            mimeType: "video/webm"
         })!;
         mediaRecorderRef.current.addEventListener(
-        "dataavailable",
-        handleDataAvailable
+            "dataavailable",
+            handleDataAvailable
         );
         mediaRecorderRef.current.start();
     }, [webcamRef, setCapturing, mediaRecorderRef]);
 
     const handleDataAvailable = React.useCallback(
         ({ data }) => {
-        if (data.size > 0) {
-            setRecordedChunks((prev) => prev.concat(data));
-        }
+            if (data.size > 0) {
+                setRecordedChunks((prev) => prev.concat(data));
+            }
         },
         [setRecordedChunks]
     );
@@ -35,35 +35,32 @@ export default function WebcamCapture() {
 
     const handleDownload = React.useCallback(() => {
         if (recordedChunks.length) {
-        const blob = new Blob(recordedChunks, {
-            type: "video/webm"
-        });
+            const blob = new Blob(recordedChunks, {
+                type: "video/webm"
+            });
 
-        // Send to upload Python server  
-        const fd = new FormData();
-        fd.append("fname", "video.webm")
-        fd.append("video", blob);
-        fetch("http://localhost:8080/api/hands", {
-            method: "POST",
-            body: fd,
-        });
-    
-        window.URL.revokeObjectURL(url);
-        setRecordedChunks([]);
+            // Send to upload Python server  
+            const fd = new FormData();
+            fd.append("fname", "video.webm")
+            fd.append("video", blob);
+            fetch("http://localhost:8080/api/hands", {
+                method: "POST",
+                body: fd,
+            });
+        
+            setRecordedChunks([]);
         }
     }, [recordedChunks]);
 
     return (
         <>            
-            <Webcam audio={false} ref={webcamRef} />
-            {capturing ? (
+            <Webcam audio={false} ref={webcamRef} mirrored={true}/>
+            {capturing ? 
                 <button onClick={handleStopCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Stop Recording</button>
-            ) : (
+                : 
                 <button onClick={handleStartCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button>
-            )}
-            {recordedChunks.length > 0 && (
-                <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue</button>
-            )}
+            }
+            {recordedChunks.length > 0 && <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue</button>}
         </>
     );
 };

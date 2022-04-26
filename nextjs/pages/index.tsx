@@ -3,20 +3,16 @@ import WebcamCapture from "./components/WebcamCapture";
 import SignTutorial from "./components/SignTutorial";
 import ReactPlayer from "react-player";
 
-
 export default function LearningPage() {
 
     const [showWebcam, setShowWebcam] = useState(false)
     const [showSignTutorial, setShowSignTutorial] = useState(false);
 
-
     const closeSignTutorial = () => setShowSignTutorial(false);
     const displaySignTutorial = () => setShowSignTutorial(true);
 
     const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
-
     const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
-
 
     return (
         <>
@@ -45,10 +41,7 @@ export default function LearningPage() {
     );
 }
 
-
-
 /**
- * 
  * @param currentSign the current sign that the user just signed, used to know what the next sign should be
  * @returns [URL, SignName] will return undefined when finished
  */
@@ -57,12 +50,12 @@ const getNextSign = (currentSign?: string): [string?, string?] => {
     const signData = require("./models/sign.json");
     const keys = Object.keys(signData);
 
-    if(currentSign === undefined){
+    if (currentSign === undefined) {
         return [keys[0], signData[keys[0]]];
     }
 
-    for(let i = 0; i <= keys.length; i++){
-        if(currentSign == keys[i])
+    for (let i = 0; i <= keys.length; i++) {
+        if (currentSign == keys[i])
             return [keys[i+1], signData[keys[i+1]]];
     }
 
