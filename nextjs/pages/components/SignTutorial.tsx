@@ -3,7 +3,7 @@ import ReactPlayer from "react-player"
 import useKeyPress from "./hooks/useKeyPress"
 
 type Props = {
-    signName: String,
+    signName: string,
     url: string,
     closeModal: () => void,
 }
