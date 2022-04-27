@@ -2,10 +2,14 @@ import json
 import os
 import cv2
 import numpy as np
+import keras
+from tensorflow import keras
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
+
+pad_frame = np.zeros(shape=(IMG_SIZE,IMG_SIZE,3), dtype="int32")
 
 def get_partitions_and_labels():
     file_path = 'dataset.json'
@@ -85,20 +89,22 @@ def crop_center_square(frame):
     return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
 
 
-def load_video(path, max_frames=0, resize=(IMG_SIZE, IMG_SIZE)):
+def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
     cap = cv2.VideoCapture(path)
     frames = []
     try:
         while True:
             ret, frame = cap.read()
-            if not ret:
+            if not ret: # Pad data
+                for i in range(len(frames), MAX_SEQ_LENGTH):
+                    frames.append(pad_frame)
                 break
             frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
             frame = frame[:, :, [2, 1, 0]]
             frames.append(frame)
 
-            if len(frames) == max_frames:
+            if len(frames) == MAX_SEQ_LENGTH:
                 break
     finally:
         cap.release()
@@ -106,19 +112,21 @@ def load_video(path, max_frames=0, resize=(IMG_SIZE, IMG_SIZE)):
     return np.array(frames)
 
 
-def prepare_videos(df, root_dir):
-    frame = []
-    num_samples = len(df)
-    video_paths = df["video_name"].values.tolist()
-    labels = df["tag"].values
-    labels = label_processor(labels[..., None]).numpy()
+def build_feature_extractor():
+    feature_extractor = keras.applications.InceptionV3(
+        weights="imagenet",
+        include_top=False,
+        pooling="avg",
+        input_shape=(IMG_SIZE, IMG_SIZE, 3),
+    )
+    preprocess_input = keras.applications.inception_v3.preprocess_input
 
-    # For each video.
-    for idx, path in enumerate(video_paths):
-        #print(idx)
-        #print(path)
-        # Gather all its frames and add to a list.
-        frames = load_video(os.path.join(root_dir, path))
-        frame.append(frames)
-        
-    return frame, labels
+    inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
+    preprocessed = preprocess_input(inputs)
+
+    outputs = feature_extractor(preprocessed)
+
+    for layer in feature_extractor.layers:
+        layer.trainable = False
+
+    return keras.Model(inputs, outputs, name="feature_extractor")
