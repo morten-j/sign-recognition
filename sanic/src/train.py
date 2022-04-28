@@ -91,20 +91,16 @@ elif args["load"] == "False":
     test_data, test_labels = prepare_all_videos(test_df, "video")
 
     # Save data, to save time later
-    pkl_filename1 = "./data/traindata.pkl"
-    with open(pkl_filename1, 'wb') as file:
+    with open("./data/traindata.pkl", 'wb') as file:
             pickle.dump(train_data, file)
 
-    pkl_filename2 = "./data/trainlabels.pkl"
-    with open(pkl_filename2, 'wb') as file:
+    with open("./data/trainlabels.pkl", 'wb') as file:
             pickle.dump(train_labels, file)
 
-    pkl_filename3 = "./data/testdata.pkl"
-    with open(pkl_filename3, 'wb') as file:
+    with open("./data/testdata.pkl", 'wb') as file:
             pickle.dump(test_data, file)
 
-    pkl_filename4 = "./data/testlabels.pkl"
-    with open(pkl_filename4, 'wb') as file:
+    with open("./data/testlabels.pkl", 'wb') as file:
             pickle.dump(test_labels, file)
 else:
     print("Specify valid load argument!!!")
