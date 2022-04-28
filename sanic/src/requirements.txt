@@ -1,2 +1,14 @@
 sanic[ext]
+tensorflow
+numpy
+matplotlib
+pyqt5
+pandas
+opencv-python
+imageio
+imutils
+sklearn
 mediapipe
+pickle5
+more_itertools
+argparse
