@@ -39,20 +39,17 @@ feature_extractor = utils.build_feature_extractor()
 
 
 if args["load"] == "True":
-    pkl_filename1 = "./data/traindata.pkl"
-    with open(pkl_filename1, 'rb') as file:
+
+    with open("./data/traindata.pkl", 'rb') as file:
         train_data = pickle.load(file)
 
-    pkl_filename2 = "./data/trainlabels.pkl"
-    with open(pkl_filename2, 'rb') as file:
+    with open("./data/trainlabels.pkl", 'rb') as file:
         train_labels = pickle.load(file)
-
-    pkl_filename3 = "./data/testdata.pkl"
-    with open(pkl_filename3, 'rb') as file:
+        
+    with open("./data/testdata.pkl", 'rb') as file:
         test_data = pickle.load(file)
 
-    pkl_filename4 = "./data/testlabels.pkl"
-    with open(pkl_filename4, 'rb') as file:
+    with open("./data/testlabels.pkl", 'rb') as file:
         test_labels = pickle.load(file)
 
 elif args["load"] == "False":
