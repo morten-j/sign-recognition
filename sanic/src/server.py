@@ -5,6 +5,7 @@ import feature_extraction as fe
 import tempfile
 
 app = Sanic("MyHelloWorldApp")
+app.config.CORS_ORIGINS = "*"
 
 @app.get("/")
 async def hello_world(request):
@@ -22,8 +23,7 @@ async def hands(request):
     parameters:
       - name: flip
         in: query
-        
-          type: boolean
+        type: boolean
     requestBody:
         content:
             multipart/form-data:
@@ -40,7 +40,6 @@ async def hands(request):
         content:
             application/json: {}
     """
-
     flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
@@ -48,4 +47,3 @@ async def hands(request):
         temp.write(videofile.body) # write the video into a temporary file
         
         return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
-      

@@ -38,6 +38,7 @@ def getLandmarksFromVideo(video, flipped=False):
 
             if not result.multi_hand_landmarks:
                 continue
+      
             hands = {'left': [], 'right': []}
 
             for index, hand_landmarks in enumerate(result.multi_hand_landmarks):

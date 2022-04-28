@@ -1,22 +1,63 @@
-import React from "react";
-import VideoPlayer from "./components/VideoPlayer";
+import React, { useState } from "react";
 import WebcamCapture from "./components/WebcamCapture";
+import SignTutorial from "./components/SignTutorial";
+import ReactPlayer from "react-player";
 
 export default function LearningPage() {
-  const [showWebcam, setShowWebcam] = React.useState(false)
 
-  return (
-    <>
-      <div>
-        { showWebcam ? null : <VideoPlayer /> }
-        { showWebcam ? <WebcamCapture /> : null }
-      </div>
-    
-      <div className="p-6 mx-auto bg-white rounded-xl shadow-lg flex items-center space-x-4 w-2/3" >
-        {/* buttons */}
-        { showWebcam ? null : <button onClick={() => setShowWebcam(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button> }
-        { showWebcam ? <button onClick={() => setShowWebcam(false)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back to vid</button> : null }
-      </div>
-    </>
-  );
+    const [showWebcam, setShowWebcam] = useState(false)
+    const [showSignTutorial, setShowSignTutorial] = useState(false);
+
+    const closeSignTutorial = () => setShowSignTutorial(false);
+    const displaySignTutorial = () => setShowSignTutorial(true);
+
+    const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
+    const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+
+    return (
+        <>
+            {showSignTutorial && <SignTutorial signName={currentSign!} url={URL!} closeModal={closeSignTutorial} />}
+
+            <div className="p-6 mx-auto bg-slate-200 mt-10 rounded-xl shadow-lg flex flex-col w-fit gap-8">
+                <h1 className="text-center text-3xl font-semibold">ASL recognizer: {currentSign === undefined ? "Finished!" : currentSign}</h1>
+
+                <div className="self-center">
+                    {showWebcam ? <WebcamCapture /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                </div>
+
+                <div className="self-center flex gap-2">
+                    <button onClick={() => setCurrentSign(getNextSign(currentSign))} className={buttonCSS}>
+                        {currentSign === undefined ? "Restart" : "Next Sign"}
+                    </button>
+
+                    <button onClick={() => setShowWebcam(!showWebcam)} className={buttonCSS}>
+                        {showWebcam ? "Back to vid" : "Record"}
+                    </button>
+
+                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
+                </div>
+            </div>
+        </>
+    );
+}
+
+/**
+ * @param currentSign the current sign that the user just signed, used to know what the next sign should be
+ * @returns [URL, SignName] will return undefined when finished
+ */
+const getNextSign = (currentSign?: string): [string?, string?] => {
+
+    const signData = require("./models/sign.json");
+    const keys = Object.keys(signData);
+
+    if (currentSign === undefined) {
+        return [keys[0], signData[keys[0]]];
+    }
+
+    for (let i = 0; i <= keys.length; i++) {
+        if (currentSign == keys[i])
+            return [keys[i+1], signData[keys[i+1]]];
+    }
+
+    return [undefined, undefined];
 }
