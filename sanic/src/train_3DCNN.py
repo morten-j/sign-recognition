@@ -1,3 +1,4 @@
+from cgi import test
 import pickle
 import numpy as np
 import pandas as pd
@@ -7,16 +8,17 @@ import matplotlib.style as pltstyle
 import argparse
 import os
 import utils
+import tensorflow as tf
 from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization
 
 from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
+from tensorflow.compat.v1 import Session
 config = ConfigProto()
 config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
+session = Session(config=config)
 
 IMG_SIZE = 224
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 MAX_SEQ_LENGTH = 72
 EPOCHS = 50
 
@@ -59,12 +61,14 @@ def prepare_all_videos(df, root_dir):
 train_data, train_labels = prepare_all_videos(train_df, "video")
 test_data, test_labels = prepare_all_videos(test_df, "video")
 
-train_data = np.array(train_data)
-test_data = np.array(test_data)
+#train_data = np.array(train_data)
+#test_data = np.array(test_data)
+
+print(train_labels.shape)
 
 
 print("[INFO] building model...")
-def get_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
+def get_model(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     """Build a 3D convolutional neural network model."""
 
     inputs = keras.Input((frames, width, height, 3))
@@ -87,6 +91,7 @@ def get_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
     x = GlobalAveragePooling3D()(x)
     x = Dense(units=256, activation="relu")(x)
+    #x = Dense(units=512, activation="relu")(x)
     x = Dropout(0.3)(x)
 
     outputs = Dense(len(class_vocab), activation="softmax")(x)
@@ -106,7 +111,7 @@ callbacks = [
     keras.callbacks.ReduceLROnPlateau(
         monitor="loss", factor=0.5, patience=50, min_lr=0.0001
     ),
-    keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
+    keras.callbacks.EarlyStopping(monitor="accuracy", patience=50, verbose=1),
 ]
 
 
