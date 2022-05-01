@@ -23,12 +23,14 @@ ap.add_argument("-m", "--model", required=True,
 	help="What to call model file")
 args = vars(ap.parse_args())
 
-
+# Get video ids and their labels
 train_data, test_data = utils.get_data_frame_dicts()
 
+# Fransform them into Pandas dataframes
 train_df = pd.DataFrame(train_data)
 test_df = pd.DataFrame(test_data)
 
+# Used to extract how many classes are present in the training data
 label_processor = keras.layers.StringLookup(
     num_oov_indices=0, vocabulary=np.unique(train_df["label"])
 )
@@ -154,7 +156,7 @@ print("[INFO] evaluating network...")
 #print(classification_report(testY.argmax(axis=1),
 #	predictions.argmax(axis=1), target_names=lb.classes_))
 # plot the training loss and accuracy
-_, accuracy = rnn_model.evaluate([test_data[0], test_data[1]], test_labels)
+_, accuracy = rnn_model.evaluate(test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 print(accuracy)
 
