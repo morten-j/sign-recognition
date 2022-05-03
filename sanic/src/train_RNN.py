@@ -7,7 +7,6 @@ import matplotlib.style as pltstyle
 import argparse 
 import os
 import utils
-#from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, StringLookup
 
 IMG_SIZE = 224
 BATCH_SIZE = 16
@@ -155,7 +154,7 @@ print("[INFO] evaluating network...")
 #print(classification_report(testY.argmax(axis=1),
 #	predictions.argmax(axis=1), target_names=lb.classes_))
 # plot the training loss and accuracy
-_, accuracy = rnn_model.evaluate([test_data[0], test_data[1]], test_labels)
+_, accuracy = rnn_model.evaluate( test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 print(accuracy)
 
