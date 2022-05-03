@@ -2,7 +2,7 @@ import json
 import os
 import cv2
 import numpy as np
-from tensorflow import keras
+import keras
 
 IMG_SIZE = 224
 BATCH_SIZE = 32

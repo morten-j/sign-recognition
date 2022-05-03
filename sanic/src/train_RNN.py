@@ -1,12 +1,13 @@
 import pickle
 import numpy as np
 import pandas as pd
-from tensorflow import keras
+import keras
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
 import argparse 
 import os
 import utils
+#from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, StringLookup
 
 IMG_SIZE = 224
 BATCH_SIZE = 16
