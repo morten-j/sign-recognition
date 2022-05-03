@@ -153,3 +153,5 @@ cython_debug/
 
 # lets not share videos on github!
 src/videos
+
+raw.*/

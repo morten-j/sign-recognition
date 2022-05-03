@@ -43,7 +43,6 @@ async def hands(request: Request) -> HTTPResponse:
         content:
             application/json: {}
     """
-    
     flipped = request.args.get("flip")
     videofile = request.files.get("video")
 
