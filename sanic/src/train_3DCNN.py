@@ -1,4 +1,5 @@
 from cgi import test
+from multiprocessing import pool
 import pickle
 import numpy as np
 import pandas as pd
@@ -9,7 +10,8 @@ import argparse
 import os
 import utils
 import tensorflow as tf
-from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization
+from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D
+from tensorflow.keras.utils import to_categorical
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import Session
@@ -50,8 +52,6 @@ def prepare_all_videos(df, root_dir):
 
     # For each video.
     for idx, path in enumerate(video_paths):
-        #print(idx)
-        #print(path)
         # Gather all its frames and add to a list.
         frames = utils.load_video(os.path.join(root_dir, path + ".mp4"))
         frame.append(frames)
@@ -61,10 +61,11 @@ def prepare_all_videos(df, root_dir):
 train_data, train_labels = prepare_all_videos(train_df, "video")
 test_data, test_labels = prepare_all_videos(test_df, "video")
 
-#train_data = np.array(train_data)
-#test_data = np.array(test_data)
+fixed_labels = to_categorical(train_labels, len(class_vocab))
 
-print(train_labels.shape)
+
+train_data = np.array(train_data)
+test_data = np.array(test_data)
 
 
 print("[INFO] building model...")
@@ -94,18 +95,41 @@ def get_model(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     #x = Dense(units=512, activation="relu")(x)
     x = Dropout(0.3)(x)
 
-    outputs = Dense(len(class_vocab), activation="softmax")(x)
+    outputs = Dense(units=len(class_vocab), activation="softmax")(x)
 
     # Define the model.
     model = keras.Model(inputs, outputs, name="3DCNN")
     return model
 
-model = get_model()
+def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
+
+    inputs = keras.Input((frames, width, height, 3))
+
+    x = Conv3D(filters=96, kernel_size=3, activation="relu")(inputs)
+    x = BatchNormalization()(x)
+    x = AveragePooling3D(pool_size=(2,2,2))(x)
+
+    x = Conv3D(filters=256, kernel_size=3, activation="relu")(x)
+    x = BatchNormalization()(x)
+    x = AveragePooling3D(pool_size=(2,2,2))(x)
+
+    x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
+    x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
+    x = Conv3D(filters=256, kernel_size=3, activation="relu")(x)
+
+    x = GlobalAveragePooling3D()(x)
+    x = Dense(units=256, activation="relu")(x)
+    outputs = Dense(len(class_vocab), activation="softmax")(x)
+
+    model = keras.Model(inputs, outputs, name="3DCNN_2")
+    return model
+
+model = get_model2()
 model.summary()
 
 print("[INFO] compiling model...")
 model.compile(
-    loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+    loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
 callbacks = [
     keras.callbacks.ReduceLROnPlateau(
@@ -118,7 +142,7 @@ callbacks = [
 print("[INFO] training head...")
 H = model.fit(
 	train_data,
-    train_labels,
+    fixed_labels,
     #validation_split=0.2,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,

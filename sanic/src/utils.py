@@ -96,19 +96,19 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
         while True:
             ret, frame = cap.read()
             if not ret: # Pad data
-                #for i in range(len(frames), MAX_SEQ_LENGTH):
-                #    frames.append(pad_frame)
+                for i in range(len(frames), MAX_SEQ_LENGTH):
+                    frames.append(pad_frame)
                 break
             frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
             frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
             frames.append(frame)
 
-            #if len(frames) == MAX_SEQ_LENGTH:
-            #    break
+            if len(frames) == MAX_SEQ_LENGTH:
+                break
     finally:
         cap.release()
-    #frames = frames[:MAX_SEQ_LENGTH]
+    frames = frames[:MAX_SEQ_LENGTH]
     return np.array(frames)
 
 
