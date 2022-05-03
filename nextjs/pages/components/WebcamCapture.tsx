@@ -1,7 +1,12 @@
 import Webcam from "react-webcam";
 import React from "react";
 
-export default function WebcamCapture() {
+type props = {
+    shouldAnalyse: boolean,
+    signLabel: string
+}
+
+export default function WebcamCapture({ shouldAnalyse, signLabel }: props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
     const [capturing, setCapturing] = React.useState(false);
@@ -43,24 +48,35 @@ export default function WebcamCapture() {
             const fd = new FormData();
             fd.append("fname", "video.webm")
             fd.append("video", blob);
-            fetch("http://localhost:8080/api/hands", {
-                method: "POST",
-                body: fd,
-            });
-        
+
+            // Send to /api/hands if should analyse, else send for video saving only.
+            if (shouldAnalyse) {
+                fetch("http://localhost:8080/api/hands", {
+                    method: "POST",
+                    body: fd,
+                });
+            } else {
+                const response = fetch(`http://localhost:8080/api/savevideo?label=${signLabel}`, {
+                    method: "POST",
+                    body: fd,
+                });
+                response.then(() => {window.alert("Video saved on server!")})
+            }
+
+
             setRecordedChunks([]);
         }
     }, [recordedChunks]);
 
     return (
-        <>            
-            <Webcam audio={false} ref={webcamRef} mirrored={true}/>
-            {capturing ? 
+        <>
+            <Webcam audio={false} ref={webcamRef} mirrored={true} />
+            {capturing ?
                 <button onClick={handleStopCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Stop Recording</button>
-                : 
+                :
                 <button onClick={handleStartCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button>
             }
-            {recordedChunks.length > 0 && <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue</button>}
+            {recordedChunks.length > 0 && <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">{shouldAnalyse ? "analyse" : "Save on server"}</button>}
         </>
     );
 };

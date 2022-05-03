@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import WebcamCapture from "./components/WebcamCapture";
 import SignTutorial from "./components/SignTutorial";
 import ReactPlayer from "react-player";
+import ToggleButton from "./components/ToggleButton";
 
 export default function LearningPage() {
+
+    const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
 
     const [showWebcam, setShowWebcam] = useState(false)
     const [showSignTutorial, setShowSignTutorial] = useState(false);
@@ -11,8 +14,11 @@ export default function LearningPage() {
     const closeSignTutorial = () => setShowSignTutorial(false);
     const displaySignTutorial = () => setShowSignTutorial(true);
 
-    const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
     const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+
+    /* Should analyse toggle switch state*/
+    const [shouldAnalyse, setShouldAnalyse] = useState(false);
+    const onToggle = () => setShouldAnalyse(!shouldAnalyse);
 
     return (
         <>
@@ -22,7 +28,7 @@ export default function LearningPage() {
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer: {currentSign === undefined ? "Finished!" : currentSign}</h1>
 
                 <div className="self-center">
-                    {showWebcam ? <WebcamCapture /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                    {showWebcam ? <WebcamCapture shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
 
                 <div className="self-center flex gap-2">
@@ -35,6 +41,8 @@ export default function LearningPage() {
                     </button>
 
                     {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
+
+                    <ToggleButton isToggled={shouldAnalyse} setisToggled={setShouldAnalyse} label="should analyse" />
                 </div>
             </div>
         </>
