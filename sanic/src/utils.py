@@ -2,7 +2,6 @@ import json
 import os
 import cv2
 import numpy as np
-import keras
 from tensorflow import keras
 
 IMG_SIZE = 224
