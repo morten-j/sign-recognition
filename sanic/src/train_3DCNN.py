@@ -22,13 +22,13 @@ session = Session(config=config)
 IMG_SIZE = 224
 BATCH_SIZE = 1
 MAX_SEQ_LENGTH = 72
-EPOCHS = 50
+EPOCHS = 25
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-p", "--picture", required=True,
-	help="What to call picture created from training history")
+ap.add_argument("-n", "--name", required=True,
+	help="What to call picture and model created")
 ap.add_argument("-m", "--model", required=True,
-	help="What to call model file")
+	help="Which of the two models to use")
 args = vars(ap.parse_args())
 
 # Get video ids and their labels
@@ -113,18 +113,27 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     x = BatchNormalization()(x)
     x = AveragePooling3D(pool_size=(2,2,2))(x)
 
+    x = GlobalAveragePooling3D()(x)
+
     x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=256, kernel_size=3, activation="relu")(x)
 
-    x = GlobalAveragePooling3D()(x)
     x = Dense(units=256, activation="relu")(x)
     outputs = Dense(len(class_vocab), activation="softmax")(x)
 
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
 
-model = get_model2()
+match args["model"]:
+    case '1':
+        model = get_model()
+    case '2':
+        model = get_model2()
+    case _:
+        print("[WARNING] a model was not choosen in args")
+        exit(0)
+
 model.summary()
 
 print("[INFO] compiling model...")
@@ -148,6 +157,12 @@ H = model.fit(
     batch_size=BATCH_SIZE,
 	callbacks=callbacks)
 
+
+# serialize the model to disk
+print("[INFO] serializing network...")
+model.save("./models/" + args["name"], save_format="h5")
+
+
 # evaluate the network
 print("[INFO] evaluating network...")
 #predictions = model.predict(x=testX.astype("float32"), batch_size=32)
@@ -170,9 +185,4 @@ plt.title("Training Loss and Accuracy on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
-plt.savefig("./pictures/" + args["picture"] + ".jpg")
-
-
-# serialize the model to disk
-print("[INFO] serializing network...")
-model.save("./models/" + args["model"], save_format="h5")
+plt.savefig("./pictures/" + args["name"] + ".jpg")
