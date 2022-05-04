@@ -10,7 +10,7 @@ import argparse
 import os
 import utils
 import tensorflow as tf
-from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D
+from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D, Flatten
 from tensorflow.keras.utils import to_categorical
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -127,11 +127,45 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
 
+def get_model3(frames=None, width=IMG_SIZE, height=IMG_SIZE):
+
+    inputs = keras.Input((frames, width, height, 3))
+
+    x = Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
+    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = BatchNormalization()(x)
+
+    x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
+    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = BatchNormalization()(x)
+
+    x = Conv3D(filters=128, kernel_size=3, activation="relu")(x)
+    x = Conv3D(filters=128, kernel_size=3, activation="relu")(x)
+    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = BatchNormalization()(x)
+
+    x = Conv3D(filters=256, kernel_size=(6,1,1), activation="relu")(x)
+    x = Conv3D(filters=512, kernel_size=1 , activation="relu")(x)
+    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = BatchNormalization()(x)
+
+    x = Dense(units=256, activation="relu")(x)
+    x = Flatten()(x)
+    outputs = Dense(units=len(class_vocab), activation="softmax")(x)
+
+    model = keras.Model(inputs, outputs, name="3DCNN_3")
+
+
+    return model
+
+
 # Match/Switch is only available from python 3.10
 if args["model"] == '1':
     model = get_model()
 elif args["model"] == '2':
     model = get_model2()
+elif args["model"] == '3':
+    model = get_model3()
 else:
     print("[WARNING] no valid model was choosen!")
     exit(0)
