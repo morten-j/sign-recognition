@@ -153,14 +153,10 @@ H = rnn_model.fit(
 
 # evaluate the network
 print("[INFO] evaluating network...")
-#predictions = model.predict(x=testX.astype("float32"), batch_size=32)
-#print(classification_report(testY.argmax(axis=1),
-#	predictions.argmax(axis=1), target_names=lb.classes_))
-# plot the training loss and accuracy
 _, accuracy = rnn_model.evaluate( test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 
-
+# plot the training loss and accuracy
 N = EPOCHS
 pltstyle.use("ggplot")
 plt.figure()
