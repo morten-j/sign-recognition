@@ -41,7 +41,7 @@ export default function LearningPage() {
 
                     {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
 
-                    <ToggleButton isToggled={shouldAnalyse} setisToggled={setShouldAnalyse} label="should analyse" />
+                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="should analyse" />
                 </div>
             </div>
         </>
