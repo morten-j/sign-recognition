@@ -29,6 +29,9 @@ train_data, test_data = utils.get_data_frame_dicts()
 train_df = pd.DataFrame(train_data)
 test_df = pd.DataFrame(test_data)
 
+print(f"[INFO] Total number of videos for training: {len(train_df)}")
+print(f"[INFO] Total number of videos for testing: {len(test_df)}")
+
 label_processor = keras.layers.StringLookup(
     num_oov_indices=0, vocabulary=np.unique(train_df["label"])
 )
