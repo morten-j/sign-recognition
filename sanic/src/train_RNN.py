@@ -141,7 +141,6 @@ callbacks = [
     keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
 ]
 
-
 print("[INFO] training head...")
 H = rnn_model.fit(
 	train_data,
