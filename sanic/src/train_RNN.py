@@ -106,7 +106,7 @@ elif args["load"] == "False":
     with open("./data/testlabels.pkl", 'wb') as file:
             pickle.dump(test_labels, file)
 else:
-    print("Specify valid load argument!!!")
+    print("Specify valid load arguments!")
     exit(0)
 
 
@@ -119,12 +119,12 @@ mask_input = keras.Input((MAX_SEQ_LENGTH,), dtype="bool")
 
 # Refer to the following tutorial to understand the significance of using `mask`:
 # https://keras.io/api/layers/recurrent_layers/gru/
-x = keras.layers.GRU(16, return_sequences=True)( #524
-    frame_features_input, mask=mask_input
-)
-x = keras.layers.GRU(8)(x) #124
+
+# Create RNN model
+x = keras.layers.GRU(16, return_sequences=True)(frame_features_input, mask=mask_input)
+x = keras.layers.GRU(8)(x)
 x = keras.layers.Dropout(0.6)(x)
-x = keras.layers.Dense(8, activation="relu")(x) #64
+x = keras.layers.Dense(8, activation="relu")(x)
 output = keras.layers.Dense(len(class_vocab), activation="softmax")(x)
 
 rnn_model = keras.Model([frame_features_input, mask_input], output)
