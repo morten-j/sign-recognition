@@ -6,7 +6,7 @@ type props = {
     label: string,
 }
 
-function ToggleButton({ isToggled, setisToggled, label }: props) {
+function ToggleButton({ isToggled, setIsToggled, label }: props) {
 
     return (
         <div className="flex items-center justify-center">
