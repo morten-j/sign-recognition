@@ -11,6 +11,7 @@ import os
 import utils
 import tensorflow as tf
 from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D
+from tensorflow.keras.utils import to_categorical
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
