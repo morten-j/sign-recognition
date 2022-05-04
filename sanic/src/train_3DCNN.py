@@ -125,16 +125,14 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
 
-choosen_model = args["model"]
-
-match choosen_model:
-    case '1':
-        model = get_model()
-    case '2':
-        model = get_model2()
-    case _:
-        print("[WARNING] a model was not choosen in args")
-        exit(0)
+# Match/Switch is only available from python 3.10
+if args["model"] == '1':
+    model = get_model()
+elif args["model"] == '2':
+    model = get_model2()
+else:
+    print("[WARNING] no valid model was choosen!")
+    exit(0)
 
 model.summary()
 
