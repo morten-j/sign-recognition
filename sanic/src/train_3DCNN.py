@@ -113,11 +113,11 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     x = BatchNormalization()(x)
     x = AveragePooling3D(pool_size=(2,2,2))(x)
 
-    x = GlobalAveragePooling3D()(x)
-
     x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=384, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=256, kernel_size=3, activation="relu")(x)
+
+    x = GlobalAveragePooling3D()(x)
 
     x = Dense(units=256, activation="relu")(x)
     outputs = Dense(len(class_vocab), activation="softmax")(x)
@@ -125,7 +125,9 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
 
-match args["model"]:
+choosen_model = args["model"]
+
+match choosen_model:
     case '1':
         model = get_model()
     case '2':
