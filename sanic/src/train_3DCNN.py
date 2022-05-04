@@ -22,7 +22,7 @@ config.gpu_options.allow_growth = True
 session = Session(config=config)
 
 IMG_SIZE = 224
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 MAX_SEQ_LENGTH = 72
 EPOCHS = 25
 
