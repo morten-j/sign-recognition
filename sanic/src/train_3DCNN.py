@@ -11,7 +11,8 @@ import os
 import utils
 import tensorflow as tf
 from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D
-from tensorflow.keras.utils import to_categorical
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import Session
@@ -20,7 +21,7 @@ config.gpu_options.allow_growth = True
 session = Session(config=config)
 
 IMG_SIZE = 224
-BATCH_SIZE = 1
+BATCH_SIZE = 8
 MAX_SEQ_LENGTH = 72
 EPOCHS = 25
 
