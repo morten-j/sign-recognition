@@ -130,3 +130,10 @@ def build_feature_extractor():
         layer.trainable = False
 
     return keras.Model(inputs, outputs, name="feature_extractor")
+
+
+def load_model(path):
+    if os.path.exists(path):
+        return keras.models.load_model(path)
+    else:
+        return "Blyat" 

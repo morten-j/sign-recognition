@@ -9,6 +9,5 @@ imageio
 imutils
 sklearn
 mediapipe
-pickle5
 more_itertools
 argparse

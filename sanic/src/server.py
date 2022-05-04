@@ -3,9 +3,14 @@ from sanic.response import text, HTTPResponse
 from sanic.request import Request
 from sanic_ext import openapi
 from pathlib import Path
+import numpy as np
 import feature_extraction as fe
 import tempfile
 import os
+import utils
+
+model = utils.load_model(os.path.join("models", "test_run")) #TODO fix whhen there is a model
+feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -94,3 +99,42 @@ async def savevideo(request: Request) -> HTTPResponse:
         file.close()
     else:
         return text("No label provided!", 400)
+
+
+@app.post("/api/predict")
+@openapi.parameter("label", str, description="The label of the sign which is used for saving it the correct place")
+async def predict_video(request: Request) -> HTTPResponse:
+    """
+    Predict sign from video
+    openapi:
+    operationId: predict_video
+    tags:
+      - ML
+    parameters:
+      - name: label
+        in: query
+        type: string
+    requestBody:
+        content:
+            multipart/form-data:
+                schema:
+                    type: object
+                    properties:
+                        video:
+                            type: string
+                            format: binary
+    responses:
+      '200':
+        description: returns 200 on successful save
+    """
+        
+    label = request.args.get("label")
+    videofile = request.files.get("video")
+
+    with tempfile.NamedTemporaryFile() as temp:
+        temp.write(videofile.body) # write the video into a temporary file
+        video = utils.load_video(temp.name)
+
+    prediction = model.predict(video)[0]
+
+    return text(f'Here is what sign the network predicted: {prediction}')
