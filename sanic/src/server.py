@@ -7,7 +7,7 @@ import feature_extraction as fe
 import tempfile
 import os
 
-app = Sanic("MyHelloWorldApp")
+app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
 
 @app.get("/")
