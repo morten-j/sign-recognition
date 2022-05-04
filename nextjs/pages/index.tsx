@@ -18,7 +18,6 @@ export default function LearningPage() {
 
     /* Should analyse toggle switch state*/
     const [shouldAnalyse, setShouldAnalyse] = useState(false);
-    const onToggle = () => setShouldAnalyse(!shouldAnalyse);
 
     return (
         <>
