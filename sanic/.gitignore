@@ -153,5 +153,5 @@ cython_debug/
 raw.*/
 
 # Pictures and models
-models/
-pictures/
+models/*
+pictures/*
