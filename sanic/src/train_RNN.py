@@ -16,7 +16,7 @@ EPOCHS = 50
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-l", "--load", required=True,
-	help="load pickle data, or create pickle data")
+	help="load pickle data (True), or create pickle data (False)")
 ap.add_argument("-n", "--name", required=True,
 	help="What to call picture and model created from training")
 args = vars(ap.parse_args())
