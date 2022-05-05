@@ -17,10 +17,8 @@ EPOCHS = 50
 ap = argparse.ArgumentParser()
 ap.add_argument("-l", "--load", required=True,
 	help="load pickle data, or create pickle data")
-ap.add_argument("-p", "--picture", required=True,
-	help="What to call picture created from training history")
-ap.add_argument("-m", "--model", required=True,
-	help="What to call model file")
+ap.add_argument("-n", "--name", required=True,
+	help="What to call picture and model created from training")
 args = vars(ap.parse_args())
 
 
@@ -167,9 +165,9 @@ plt.title("Training Loss and Accuracy on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
-plt.savefig("./pictures/" + args["picture"] + ".jpg")
+plt.savefig("./pictures/" + args["name"] + ".jpg")
 
 
 # serialize the model to disk
 print("[INFO] serializing network...")
-rnn_model.save("./models/" + args["model"], save_format="h5")
+rnn_model.save("./models/" + args["name"], save_format="h5")
