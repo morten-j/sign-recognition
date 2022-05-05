@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import WebcamCapture from "./components/WebcamCapture";
 import SignTutorial from "./components/SignTutorial";
 import ReactPlayer from "react-player";
+import ToggleButton from "./components/ToggleButton";
 
 export default function LearningPage() {
 
@@ -18,6 +19,9 @@ export default function LearningPage() {
 
     const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
 
+    /* Should analyse toggle switch state*/
+    const [shouldAnalyse, setShouldAnalyse] = useState(false);
+
     return (
         <>
             {showSignTutorial && <SignTutorial signName={currentSign!} url={URL!} closeModal={closeSignTutorial} />}
@@ -26,7 +30,10 @@ export default function LearningPage() {
 
                 <div className="self-center">
                     {/* React player displays "You haven't recorded a video yet" */}
-                    {showWebcam ? <WebcamCapture isRecording={isRecording} stopRecording={stopRecording} hideWebcam={() => setShowWebcam(false)} /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                    {showWebcam ? 
+                        <WebcamCapture isRecording={isRecording} stopRecording={stopRecording} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> 
+                        : 
+                        <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
                 {/* startRec={startRecording} stopRec={stopRecording} */}
                 <div className="self-center flex gap-2">
@@ -46,6 +53,14 @@ export default function LearningPage() {
                     <button onClick={() => setCurrentSign(getNextSign(currentSign))} className={buttonCSS}>
                         {currentSign === undefined ? "Restart" : "Skip"}
                     </button>
+
+                    <button onClick={() => setShowWebcam(!showWebcam)} className={buttonCSS}>
+                        {showWebcam ? "Back to vid" : "Record"}
+                    </button>
+
+                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
+
+                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="should analyse" />
                 </div>
             </div>
         </>
