@@ -188,7 +188,7 @@ print("[INFO] training head...")
 H = model.fit(
 	train_data,
     fixed_labels,
-    #validation_split=0.2,
+    validation_split=0.2,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
 	callbacks=callbacks)
