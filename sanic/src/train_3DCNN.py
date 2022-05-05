@@ -180,7 +180,7 @@ callbacks = [
     keras.callbacks.ReduceLROnPlateau(
         monitor="loss", factor=0.5, patience=50, min_lr=0.0001
     ),
-    keras.callbacks.EarlyStopping(monitor="accuracy", patience=50, verbose=1),
+    keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=50, verbose=1),
 ]
 
 
