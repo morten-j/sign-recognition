@@ -5,36 +5,47 @@ import ReactPlayer from "react-player";
 
 export default function LearningPage() {
 
-    const [showWebcam, setShowWebcam] = useState(false)
+    const [showWebcam, setShowWebcam] = useState(true);
     const [showSignTutorial, setShowSignTutorial] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+
+    const startRecording = () => setIsRecording(true);
+    const stopRecording = () => setIsRecording(false);
 
     const closeSignTutorial = () => setShowSignTutorial(false);
     const displaySignTutorial = () => setShowSignTutorial(true);
 
     const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
-    const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
 
     return (
         <>
             {showSignTutorial && <SignTutorial signName={currentSign!} url={URL!} closeModal={closeSignTutorial} />}
-
             <div className="p-6 mx-auto bg-slate-200 mt-10 rounded-xl shadow-lg flex flex-col w-fit gap-8">
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer: {currentSign === undefined ? "Finished!" : currentSign}</h1>
 
                 <div className="self-center">
-                    {showWebcam ? <WebcamCapture /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                    {/* React player displays "You haven't recorded a video yet" */}
+                    {showWebcam ? <WebcamCapture isRecording={isRecording} stopRecording={stopRecording} hideWebcam={() => setShowWebcam(false)} /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
-
+                {/* startRec={startRecording} stopRec={stopRecording} */}
                 <div className="self-center flex gap-2">
+                    {showWebcam ? 
+                        <button onClick={startRecording} className={buttonCSS}>Start recording</button>
+                        :
+                        <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
+                    }
+
+                    {/* Når man har recorded en vid, aka. timer løber ud, så flipper layout til React player hvor man kan se sin vid */}
+                    {/* Mangler Check button som skal vises, hvis der eksistere en video. Check button laves til next hvis ML siger yes, og ellers laves der et popup til bruger */}
+
+                    {showWebcam && <button onClick={() => setShowWebcam(false)} className={buttonCSS}>Video</button>}
+
+                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Tutorial</button>}
+
                     <button onClick={() => setCurrentSign(getNextSign(currentSign))} className={buttonCSS}>
-                        {currentSign === undefined ? "Restart" : "Next Sign"}
+                        {currentSign === undefined ? "Restart" : "Skip"}
                     </button>
-
-                    <button onClick={() => setShowWebcam(!showWebcam)} className={buttonCSS}>
-                        {showWebcam ? "Back to vid" : "Record"}
-                    </button>
-
-                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
                 </div>
             </div>
         </>
@@ -58,6 +69,5 @@ const getNextSign = (currentSign?: string): [string?, string?] => {
         if (currentSign == keys[i])
             return [keys[i+1], signData[keys[i+1]]];
     }
-
     return [undefined, undefined];
 }

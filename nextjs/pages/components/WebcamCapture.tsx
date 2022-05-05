@@ -1,7 +1,14 @@
 import Webcam from "react-webcam";
 import React from "react";
+import Countdown from 'react-countdown';
 
-export default function WebcamCapture() {
+type Props = {
+    isRecording: boolean;
+    stopRecording: () => void;
+    hideWebcam: () => void;
+}
+
+export default function WebcamCapture({ isRecording, stopRecording, hideWebcam} : Props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
     const [capturing, setCapturing] = React.useState(false);
@@ -11,12 +18,13 @@ export default function WebcamCapture() {
         setCapturing(true);
         mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
             mimeType: "video/webm"
-        })!;
+        });
         mediaRecorderRef.current.addEventListener(
             "dataavailable",
             handleDataAvailable
         );
         mediaRecorderRef.current.start();
+
     }, [webcamRef, setCapturing, mediaRecorderRef]);
 
     const handleDataAvailable = React.useCallback(
@@ -31,6 +39,9 @@ export default function WebcamCapture() {
     const handleStopCaptureClick = React.useCallback(() => {
         mediaRecorderRef.current.stop();
         setCapturing(false);
+        
+        // mediaRecorderRef.current.requestData();
+
     }, [mediaRecorderRef, webcamRef, setCapturing]);
 
     const handleDownload = React.useCallback(() => {
@@ -39,28 +50,34 @@ export default function WebcamCapture() {
                 type: "video/webm"
             });
 
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            document.body.appendChild(a);
+            a.href = url;
+            a.download = "signvid.webm";
+            a.click();
+            window.URL.revokeObjectURL(url);
+
             // Send to upload Python server  
-            const fd = new FormData();
-            fd.append("fname", "video.webm")
-            fd.append("video", blob);
-            fetch("http://localhost:8080/api/hands", {
-                method: "POST",
-                body: fd,
-            });
+            // const fd = new FormData();
+            // fd.append("fname", "video.webm")
+            // fd.append("video", blob);
+            // fetch("http://localhost:8080/api/hands", {
+            //     method: "POST",
+            //     body: fd,
+            // });
         
             setRecordedChunks([]);
         }
     }, [recordedChunks]);
 
     return (
-        <>            
-            <Webcam audio={false} ref={webcamRef} mirrored={true}/>
-            {capturing ? 
-                <button onClick={handleStopCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Stop Recording</button>
-                : 
-                <button onClick={handleStartCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button>
-            }
-            {recordedChunks.length > 0 && <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue</button>}
+        <>
+            {isRecording && <Countdown date={Date.now() + 3000} onComplete={handleStartCaptureClick} />}
+            <Webcam audio={false} ref={webcamRef} mirrored={true} />
+            
+            {isRecording && recordedChunks.length > 0 && setTimeout(handleStopCaptureClick, 6000) && setTimeout(stopRecording, 6000) && setTimeout(hideWebcam, 8000) && setTimeout(handleDownload, 7000)}
+            
         </>
     );
 };
