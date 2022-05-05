@@ -1,10 +1,6 @@
 import React from "react";
 import { start } from "repl";
 
-// interface ICountdown {
-//     seconds : number;
-// }
-
 interface ICountdown {
     startSeconds : number;
     startCapture : () => void;
@@ -14,8 +10,7 @@ interface ICountdown {
 const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown) => {
     
     const [time, setTime] = React.useState<number>(startSeconds);
-    
-    let started = false;
+    const [started, setStart] = React.useState<boolean>(false);
 
     const tick = () => {
    
@@ -23,7 +18,7 @@ const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown)
             if (!started) {
                 setTime(startSeconds);
                 startCapture();
-                started = true;
+                setStart(true);
             }
             else 
                 stopCapture();
