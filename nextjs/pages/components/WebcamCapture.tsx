@@ -39,12 +39,11 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam} 
     const handleStopCaptureClick = React.useCallback(() => {
         mediaRecorderRef.current.stop();
         setCapturing(false);
-        
-        
 
         stopRecording();
+        handleDownload();
+        // setTimeout(hideWebcam, 1000);
         hideWebcam();
-        handleDownload;
 
     }, [mediaRecorderRef, webcamRef, setCapturing]);
 
@@ -77,7 +76,7 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam} 
 
     return (
         <>
-            {isRecording && <Countdown hours={0} minutes={0} seconds={3} callback={handleStopCaptureClick} />}
+            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
         </>
     );

@@ -1,36 +1,35 @@
 import React from "react";
+import { start } from "repl";
+
+// interface ICountdown {
+//     seconds : number;
+// }
 
 interface ICountdown {
-    hours : number;
-    minutes : number;
-    seconds : number;
+    startSeconds : number;
+    startCapture : () => void;
+    stopCapture : () => void;
 }
 
-interface ICountdownInput extends ICountdown{
-    hours : number;
-    minutes : number;
-    seconds : number;
-    callback : () => void;
-}
-
-const CountDownTimer = ({ hours = 0, minutes = 0, seconds, callback }: ICountdownInput) => {
-
-    const [time, setTime] = React.useState<ICountdown>({hours, minutes, seconds});
+const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown) => {
+    
+    const [time, setTime] = React.useState<number>(startSeconds);
+    
+    let started = false;
 
     const tick = () => {
-
-        if (time.hours === 0 && time.minutes === 0 && time.seconds === 0)
-            reset()
-        else if (time.hours === 0 && time.seconds === 0) {
-            setTime({hours: time.hours - 1, minutes: 59, seconds: 59});
-        } else if (time.seconds === 0) {
-            setTime({hours: time.hours, minutes: time.minutes - 1, seconds: 59});
-        } else {
-            setTime({hours: time.hours, minutes: time.minutes, seconds: time.seconds - 1});
-        }
+   
+        if (time === 1)  {
+            if (!started) {
+                setTime(startSeconds);
+                startCapture();
+                started = true;
+            }
+            else 
+                stopCapture();
+        } else
+            setTime(time - 1);
     };
-
-    const reset = () => setTime({hours: time.hours, minutes: time.minutes, seconds: time.seconds});
 
     React.useEffect(() => {
         const timerId = setInterval(() => tick(), 1000);
@@ -38,9 +37,7 @@ const CountDownTimer = ({ hours = 0, minutes = 0, seconds, callback }: ICountdow
     });
 
     return (
-        <div>
-            <p>{`${time.seconds.toString()}`}</p>
-        </div>
+        <p>{`${time} ${started ? ": Started recording" : ""}`}</p> 
     );
 }
 
