@@ -12,7 +12,7 @@ IMG_SIZE = 224
 BATCH_SIZE = 16
 MAX_SEQ_LENGTH = 72
 NUM_FEATURES = 2048
-EPOCHS = 10
+EPOCHS = 50
 
 # Define CLI arguments
 ap = argparse.ArgumentParser()
