@@ -120,7 +120,7 @@ def main():
     # 1. Convert .swf, .mkv file to mp4.
     convert_everything_to_mp4()
 
-    content = json.load(open('WLASL_v0.3.json'))
+    content = json.load(open('dataset.json'))
     extract_all_yt_instances(content)
 
 
