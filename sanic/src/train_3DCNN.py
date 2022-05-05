@@ -10,7 +10,7 @@ import argparse
 import os
 import utils
 import tensorflow as tf
-from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPool3D, BatchNormalization, AveragePooling3D, Flatten
+from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPooling3D, BatchNormalization, AveragePooling3D, Flatten
 from tensorflow.keras.utils import to_categorical
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -77,15 +77,15 @@ def get_model(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     inputs = keras.Input((frames, width, height, 3))
 
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
-    x = MaxPool3D(pool_size=2)(x)
+    x = MaxPooling3D(pool_size=2)(x)
     x = BatchNormalization()(x)
 
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
-    x = MaxPool3D(pool_size=2)(x)
+    x = MaxPooling3D(pool_size=2)(x)
     x = BatchNormalization()(x)
 
     x = Conv3D(filters=128, kernel_size=3, activation="relu")(x)
-    x = MaxPool3D(pool_size=2)(x)
+    x = MaxPooling3D(pool_size=2)(x)
     x = BatchNormalization()(x)
 
     #x = Conv3D(filters=256, kernel_size=3, activation="relu")(x)
@@ -132,21 +132,21 @@ def get_model3(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     inputs = keras.Input((frames, width, height, 3))
 
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
-    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = MaxPooling3D(pool_size=(2,2,2))(x)
     x = BatchNormalization()(x)
 
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
-    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = MaxPooling3D(pool_size=(2,2,2))(x)
     x = BatchNormalization()(x)
 
     x = Conv3D(filters=128, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=128, kernel_size=3, activation="relu")(x)
-    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = MaxPooling3D(pool_size=(2,2,2))(x)
     x = BatchNormalization()(x)
 
     x = Conv3D(filters=256, kernel_size=(6,1,1), activation="relu")(x)
     x = Conv3D(filters=512, kernel_size=1 , activation="relu")(x)
-    x = MaxPool3D(pool_size=(2,2,2))(x)
+    x = MaxPooling3D(pool_size=(2,2,2))(x)
     x = BatchNormalization()(x)
 
     x = Dense(units=256, activation="relu")(x)
