@@ -1,6 +1,6 @@
 import Webcam from "react-webcam";
 import React from "react";
-import Countdown from 'react-countdown';
+import Countdown from "../components/Countdown";
 
 type Props = {
     isRecording: boolean;
@@ -40,7 +40,11 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam} 
         mediaRecorderRef.current.stop();
         setCapturing(false);
         
-        // mediaRecorderRef.current.requestData();
+        
+
+        stopRecording();
+        hideWebcam();
+        handleDownload;
 
     }, [mediaRecorderRef, webcamRef, setCapturing]);
 
@@ -73,11 +77,8 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam} 
 
     return (
         <>
-            {isRecording && <Countdown date={Date.now() + 3000} onComplete={handleStartCaptureClick} />}
+            {isRecording && <Countdown hours={0} minutes={0} seconds={3} callback={handleStopCaptureClick} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
-            
-            {isRecording && recordedChunks.length > 0 && setTimeout(handleStopCaptureClick, 6000) && setTimeout(stopRecording, 6000) && setTimeout(hideWebcam, 8000) && setTimeout(handleDownload, 7000)}
-            
         </>
     );
 };
