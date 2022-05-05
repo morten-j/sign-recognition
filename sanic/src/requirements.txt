@@ -1,5 +1,5 @@
 sanic[ext]
-tensorflow
+tensorflow==2.8.0
 numpy
 matplotlib
 pyqt5
@@ -7,8 +7,7 @@ pandas
 opencv-python
 imageio
 imutils
-sklearn
 mediapipe
-pickle5
 more_itertools
 argparse
+youtube-dl
