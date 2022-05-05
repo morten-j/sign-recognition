@@ -127,7 +127,7 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
 
-def get_model3(frames=None, width=IMG_SIZE, height=IMG_SIZE):
+def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
     inputs = keras.Input((frames, width, height, 3))
 
