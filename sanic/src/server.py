@@ -12,7 +12,7 @@ import utils
 model = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
 feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
 
-SIGN_LIST = [""]
+SIGN_LIST = ['book', 'dog', 'fish', 'help', 'man', 'movie', 'pizza', 'woman'] #TODO Check om rækkefølgen stadig passer med ny model
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -111,7 +111,7 @@ async def predict_video(request: Request) -> HTTPResponse:
     openapi:
     operationId: predict_video
     tags:
-      - ML
+      - Predict sign
     parameters:
       - name: label
         in: query
@@ -127,7 +127,7 @@ async def predict_video(request: Request) -> HTTPResponse:
                             format: binary
     responses:
       '200':
-        description: returns 200 on successful save
+        description: returns 200 on successful prediction attempt by model
     """
         
     label = request.args.get("label")
@@ -142,8 +142,13 @@ async def predict_video(request: Request) -> HTTPResponse:
     fixed_size = np.expand_dims(video, axis=0)
     prediction = model.predict(fixed_size)
 
+    # Find index of the max value
+    max_value_index = np.argmax(prediction)
+
+    # Create object to be returned
     returnObject = dict()
     returnObject["label"] = label
-    returnObject["predictionList"] = prediction
+    returnObject["prediction"] = SIGN_LIST[max_value_index]
+    returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
 
-    return text(f'Here is what sign the network predicted: {prediction}')
+    return json(returnObject, 200)
