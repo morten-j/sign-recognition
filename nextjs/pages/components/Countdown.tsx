@@ -2,9 +2,9 @@ import React from "react";
 import { start } from "repl";
 
 interface ICountdown {
-    startSeconds : number;
-    startCapture : () => void;
-    stopCapture : () => void;
+    startSeconds: number;
+    startCapture: () => void;
+    stopCapture: () => void;
 }
 
 const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown) => {

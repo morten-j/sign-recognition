@@ -10,11 +10,8 @@ export default function LearningPage() {
     const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
 
     const [showWebcam, setShowWebcam] = useState(true);
-    const [isRecording, setIsRecording] = useState(false);
+    const [isCapturing, setIsCapturing] = React.useState(false);    
     const [shouldAnalyse, setShouldAnalyse] = useState(false);
-
-    const startRecording = () => setIsRecording(true);
-    const stopRecording = () => setIsRecording(false);
 
     const closeSignTutorial = () => setShowSignTutorial(false);
     const displaySignTutorial = () => setShowSignTutorial(true);
@@ -32,14 +29,13 @@ export default function LearningPage() {
                 <div className="self-center">
                     {/* React player displays "You haven't recorded a video yet" */}
                     {showWebcam ? 
-                        <WebcamCapture isRecording={isRecording} stopRecording={stopRecording} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> 
+                        <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> 
                         : 
                         <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
                 </div>
-                {/* startRec={startRecording} stopRec={stopRecording} */}
                 <div className="self-center flex gap-2">
                     {showWebcam ? 
-                        <button onClick={startRecording} className={buttonCSS}>Start recording</button>
+                        <button onClick={() => setIsCapturing(true)} className={buttonCSS}>Start recording</button>
                         :
                         <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
                     }
