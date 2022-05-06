@@ -1,5 +1,4 @@
 import React from "react";
-import { start } from "repl";
 
 interface ICountdown {
     startSeconds: number;

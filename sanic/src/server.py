@@ -59,7 +59,7 @@ async def savevideo(request: Request) -> HTTPResponse:
     openapi:
     operationId: savevideo
     tags: 
-      - saveVideo
+      - SaveVideo
     parameters:
       - name: label
         in: query
