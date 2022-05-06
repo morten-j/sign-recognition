@@ -9,8 +9,10 @@ import tempfile
 import os
 import utils
 
-model = utils.load_model(os.path.join("models", "test_run")) #TODO fix whhen there is a model
+model = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
 feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+
+SIGN_LIST = [""]
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -131,10 +133,17 @@ async def predict_video(request: Request) -> HTTPResponse:
     label = request.args.get("label")
     videofile = request.files.get("video")
 
+
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
-        video = utils.load_video(temp.name)
+        video = np.array(utils.load_video(temp.name))
 
-    prediction = model.predict(video)[0]
+    # Expand dims size the model expects a list of videos and not just a video
+    fixed_size = np.expand_dims(video, axis=0)
+    prediction = model.predict(fixed_size)
+
+    returnObject = dict()
+    returnObject["label"] = label
+    returnObject["predictionList"] = prediction
 
     return text(f'Here is what sign the network predicted: {prediction}')
