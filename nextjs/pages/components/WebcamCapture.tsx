@@ -34,18 +34,13 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
             if (data.size > 0) {
                 setRecordedChunks((prev) => prev.concat(data));
             }
-        },
-        [setRecordedChunks]
+        }, [setRecordedChunks]
     );
 
     const handleStopCaptureClick = React.useCallback(() => {
         mediaRecorderRef.current.stop();
         setCapturing(false);
-
         stopRecording();
-        handleDownload();
-        // setTimeout(hideWebcam, 1000);
-        hideWebcam();
 
     }, [mediaRecorderRef, webcamRef, setCapturing]);
 
@@ -62,32 +57,33 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
 
             // Send to /api/hands if should analyse, else send for video saving only.
             if (shouldAnalyse) {
-                fetch("http://localhost:8000/api/hands", {
-                    method: "POST",
-                    body: fd,
-                });
+                fetch("http://localhost:8000/api/hands", 
+                    {
+                        method: "POST",
+                        body: fd,
+                    }
+                );
             } else {
-                const response = fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, {
-                    method: "POST",
-                    body: fd,
-                });
-                response.then(() => {window.alert("Video saved on server!")})
+                const response = fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
+                    {
+                        method: "POST",
+                        body: fd,
+                    }
+                );
+                response.then(() => {
+                    window.alert("Video saved on server!"); 
+                    hideWebcam();
+                })
             }
-
             setRecordedChunks([]);
         }
     }, [recordedChunks]);
 
     return (
         <>
-            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
+            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} handleDownload={handleDownload} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
-            {capturing ?
-                <button onClick={handleStopCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Stop Recording</button>
-                :
-                <button onClick={handleStartCaptureClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Record</button>
-            }
-            {recordedChunks.length > 0 && <button onClick={handleDownload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">{shouldAnalyse ? "analyse" : "Save on server"}</button>}
+            {recordedChunks.length > 0 && handleDownload()}
         </>
     );
 };

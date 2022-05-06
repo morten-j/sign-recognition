@@ -6,10 +6,12 @@ import ToggleButton from "./components/ToggleButton";
 
 export default function LearningPage() {
 
-    const [showWebcam, setShowWebcam] = useState(true);
     const [showSignTutorial, setShowSignTutorial] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
     const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+
+    const [showWebcam, setShowWebcam] = useState(true);
+    const [isRecording, setIsRecording] = useState(false);
+    const [shouldAnalyse, setShouldAnalyse] = useState(false);
 
     const startRecording = () => setIsRecording(true);
     const stopRecording = () => setIsRecording(false);
@@ -20,7 +22,6 @@ export default function LearningPage() {
     const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
 
     /* Should analyse toggle switch state*/
-    const [shouldAnalyse, setShouldAnalyse] = useState(false);
 
     return (
         <>
@@ -53,12 +54,6 @@ export default function LearningPage() {
                     <button onClick={() => setCurrentSign(getNextSign(currentSign))} className={buttonCSS}>
                         {currentSign === undefined ? "Restart" : "Skip"}
                     </button>
-
-                    <button onClick={() => setShowWebcam(!showWebcam)} className={buttonCSS}>
-                        {showWebcam ? "Back to vid" : "Record"}
-                    </button>
-
-                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
 
                     <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="should analyse" />
                 </div>

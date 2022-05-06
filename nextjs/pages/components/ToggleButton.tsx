@@ -1,12 +1,12 @@
 import React from "react";
 
-type props = {
+type Props = {
     isToggled: boolean;
-    setIsToggled: React.Dispatch<React.SetStateAction<boolean>>; // react useState setter
+    setIsToggled: React.Dispatch<React.SetStateAction<boolean>>;
     label: string;
 }
 
-function ToggleButton({ isToggled, setIsToggled, label }: props) {
+function ToggleButton({ isToggled, setIsToggled, label }: Props) {
 
     return (
         <div className="flex items-center justify-center">
