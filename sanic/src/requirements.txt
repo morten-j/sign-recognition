@@ -1,5 +1,5 @@
 sanic[ext]
-tensorflow-gpu==2.8.0
+tensorflow-gpu
 numpy
 matplotlib
 pyqt5
