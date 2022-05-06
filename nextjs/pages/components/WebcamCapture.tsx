@@ -62,12 +62,12 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
 
             // Send to /api/hands if should analyse, else send for video saving only.
             if (shouldAnalyse) {
-                fetch("http://localhost:8080/api/hands", {
+                fetch("http://localhost:8000/api/hands", {
                     method: "POST",
                     body: fd,
                 });
             } else {
-                const response = fetch(`http://localhost:8080/api/savevideo?label=${signLabel}`, {
+                const response = fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, {
                     method: "POST",
                     body: fd,
                 });
