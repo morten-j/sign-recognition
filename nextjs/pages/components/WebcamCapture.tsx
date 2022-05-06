@@ -81,7 +81,7 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
 
     return (
         <>
-            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} handleDownload={handleDownload} />}
+            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
             {recordedChunks.length > 0 && handleDownload()}
         </>
