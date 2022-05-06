@@ -3,21 +3,20 @@ import React from "react";
 import Countdown from "../components/Countdown";
 
 type Props = {
-    isRecording: boolean;
-    stopRecording: () => void;
+    isCapturing : boolean;
+    setIsCapturing: React.Dispatch<React.SetStateAction<boolean>>;
     hideWebcam: () => void;
     shouldAnalyse: boolean;
     signLabel: string;
 }
 
-export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, shouldAnalyse, signLabel } : Props) {
+export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam, shouldAnalyse, signLabel } : Props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
-    const [capturing, setCapturing] = React.useState(false);
     const [recordedChunks, setRecordedChunks] = React.useState([]);
 
     const handleStartCaptureClick = React.useCallback(() => {
-        setCapturing(true);
+        setIsCapturing(true);
         mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
             mimeType: "video/webm"
         });
@@ -27,7 +26,7 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
         );
         mediaRecorderRef.current.start();
 
-    }, [webcamRef, setCapturing, mediaRecorderRef]);
+    }, [webcamRef, setIsCapturing, mediaRecorderRef]);
 
     const handleDataAvailable = React.useCallback(
         ({ data }) => {
@@ -39,10 +38,9 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
 
     const handleStopCaptureClick = React.useCallback(() => {
         mediaRecorderRef.current.stop();
-        setCapturing(false);
-        stopRecording();
+        setIsCapturing(false);
 
-    }, [mediaRecorderRef, webcamRef, setCapturing]);
+    }, [mediaRecorderRef, webcamRef, setIsCapturing]);
 
     const handleDownload = React.useCallback(() => {
         if (recordedChunks.length) {
@@ -81,7 +79,7 @@ export default function WebcamCapture({ isRecording, stopRecording, hideWebcam, 
 
     return (
         <>
-            {isRecording && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
+            {isCapturing && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
             {recordedChunks.length > 0 && handleDownload()}
         </>
