@@ -11,6 +11,20 @@ MAX_SEQ_LENGTH = 72
 
 pad_frame = np.zeros(shape=(IMG_SIZE,IMG_SIZE,3), dtype="int32")
 
+empty_coor ={
+                "x":0.0,
+                "y":0.0,
+                "z":0.0,
+            }
+empty_hand = []
+
+for i in range(21):
+    empty_hand.append(empty_coor)
+
+empty_frame = dict()
+empty_frame["left"] = empty_hand
+empty_frame["right"] = empty_hand
+
 def get_partitions_and_labels():
     file_path = 'dataset.json'
 
@@ -76,6 +90,82 @@ def get_data_frame_dicts():
             elif split == 'test':
                 test_dictionary['id'].append(video_id)
                 test_dictionary['label'].append(gloss)
+            else:
+                raise ValueError("Invalid split.")
+
+    return train_dictionary, test_dictionary
+
+def get_data_frame_dicts_mediapipe():
+    file_path = 'dataset.json'
+
+    with open(file_path) as ipf:
+        content = json.load(ipf)
+    
+    train_dictionary = {"id": [], "label": [], "landmarks": []}
+    test_dictionary = {"id": [], "label": [], "landmarks": []}
+    for entry in content:
+        gloss = entry['gloss']
+
+        for instance in entry['instances']:
+            split = instance['split']
+            video_id = instance['video_id']
+            video_list = []
+            
+            if not os.path.exists("./video/landmarks/" + video_id + ".json"):
+                continue
+
+            with open("./video/landmarks/" + video_id + ".json") as land:
+                landmarks = json.load(land)
+            
+
+            if len(landmarks) < 72:
+                for frame in range(len(landmarks), 72):
+                    landmarks.append(empty_frame)
+            if len(landmarks) > 72:
+                for frame in range(72, len(landmarks)):
+                    landmarks.pop()
+    
+            for frame in landmarks:
+                for mark in frame.values():
+                    if len(mark) < 21:
+                        for test in range(len(mark), 21):
+                            mark.append(empty_coor)
+                    if len(mark) > 21:
+                        for test2 in range(21, len(mark)):
+                            mark.pop()                        
+
+            if len(landmarks) != 72:
+                print("dumb")
+            for frame_test in landmarks:
+                frame_list = []
+                if len(frame) != 2:
+                    print("blyat")
+                for landmark_test in frame_test.values():
+                    if len(landmark_test) != 21:
+                        print(len(landmark_test))
+                        print("NOOOOOO")
+                    for coord in landmark_test:
+                        if len(coord) != 3:
+                            print("LOLOOLOL")
+                            print(len(coord))
+                        for single_coor in coord.values():
+                            frame_list.append(single_coor)
+                
+                video_list.append(frame_list)
+        
+
+            if split == 'train':
+                train_dictionary['id'].append(video_id)
+                train_dictionary['label'].append(gloss)
+                train_dictionary['landmarks'].append(video_list)
+            elif split == 'val':
+                train_dictionary['id'].append(video_id)
+                train_dictionary['label'].append(gloss)
+                train_dictionary['landmarks'].append(video_list)
+            elif split == 'test':
+                test_dictionary['id'].append(video_id)
+                test_dictionary['label'].append(gloss)
+                test_dictionary['landmarks'].append(video_list)
             else:
                 raise ValueError("Invalid split.")
 
