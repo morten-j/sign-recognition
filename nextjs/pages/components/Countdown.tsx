@@ -8,14 +8,15 @@ interface ICountdown {
 
 const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown) => {
     
-    const [time, setTime] = React.useState<number>(startSeconds);
-    const [started, setStart] = React.useState<boolean>(false);
+    const [time, setTime] = React.useState<number>(startSeconds); // Countdown time
+    const [started, setStart] = React.useState<boolean>(false); // Countdown state or capturing state
 
     const tick = () => {
-   
+        
+        // equal 1, to avoid 0 in countdown text
         if (time === 1)  {
             if (!started) {
-                setTime(startSeconds);
+                setTime(startSeconds); // reset timer
                 startCapture();
                 setStart(true);
             }

@@ -27,7 +27,8 @@ export default function LearningPage() {
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer: {currentSign === undefined ? "Finished!" : currentSign}</h1>
 
                 <div className="self-center">
-                    {/* React player displays "You haven't recorded a video yet" */}
+                    {/* TODO React player displays "You haven't recorded a video yet" */}
+                    {/* TODO React player can play recorded video */}
                     {showWebcam ? 
                         <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> 
                         : 
@@ -40,8 +41,8 @@ export default function LearningPage() {
                         <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
                     }
 
-                    {/* Når man har recorded en vid, aka. timer løber ud, så flipper layout til React player hvor man kan se sin vid */}
-                    {/* Mangler Check button som skal vises, hvis der eksistere en video. Check button laves til next hvis ML siger yes, og ellers laves der et popup til bruger */}
+                    {/* TODO "Check" button, hvis der eksistere en video. Check button laves til "Next" hvis ML siger yes, og ellers laves der et popup til bruger om no fra ML */}
+                    {/* ^ Ovenstående er afhængig af om vi vil have auto send (som pt), eller om man skal kunne gennemse og retake */}
 
                     {showWebcam && <button onClick={() => setShowWebcam(false)} className={buttonCSS}>Video</button>}
 
@@ -51,7 +52,7 @@ export default function LearningPage() {
                         {currentSign === undefined ? "Restart" : "Skip"}
                     </button>
 
-                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="should analyse" />
+                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="Should analyse" />
                 </div>
             </div>
         </>

@@ -81,6 +81,8 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
         <>
             {isCapturing && <Countdown startSeconds={3} startCapture={handleStartCaptureClick} stopCapture={handleStopCaptureClick} />}
             <Webcam audio={false} ref={webcamRef} mirrored={true} />
+
+            {/* Once recordedChunks is availble execute func */}
             {recordedChunks.length > 0 && handleDownload()}
         </>
     );
