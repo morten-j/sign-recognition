@@ -10,7 +10,8 @@ export default function LearningPage() {
     const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
 
     const [showWebcam, setShowWebcam] = useState(true);
-    const [isCapturing, setIsCapturing] = React.useState(false);    
+    const [isCapturing, setIsCapturing] = React.useState(false);
+    const [blobURL, setBlobURL] = React.useState("");
     const [shouldAnalyse, setShouldAnalyse] = useState(false);
 
     const closeSignTutorial = () => setShowSignTutorial(false);
@@ -30,9 +31,9 @@ export default function LearningPage() {
                     {/* TODO React player displays "You haven't recorded a video yet" */}
                     {/* TODO React player can play recorded video */}
                     {showWebcam ? 
-                        <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> 
+                        <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} setBlobURL = {setBlobURL} /> 
                         : 
-                        <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                        <ReactPlayer url={blobURL} controls={true} />}
                 </div>
                 <div className="self-center flex gap-2">
                     {showWebcam ? 

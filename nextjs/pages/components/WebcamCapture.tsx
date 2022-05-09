@@ -8,9 +8,10 @@ type Props = {
     hideWebcam: () => void;
     shouldAnalyse: boolean;
     signLabel: string;
+    setBlobURL: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam, shouldAnalyse, signLabel } : Props) {
+export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam, shouldAnalyse, signLabel, setBlobURL } : Props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
     const [recordedChunks, setRecordedChunks] = React.useState([]);
@@ -47,6 +48,8 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
             const blob = new Blob(recordedChunks, {
                 type: "video/webm"
             });
+
+            setBlobURL(URL.createObjectURL( blob ));
 
             // Send to upload Python server  
             const fd = new FormData();
