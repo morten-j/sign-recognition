@@ -29,7 +29,6 @@ export default function LearningPage() {
 
                 <div className="self-center">
                     {/* TODO React player displays "You haven't recorded a video yet" */}
-                    {/* TODO React player can play recorded video */}
                     {showWebcam ? 
                         <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} setBlobURL = {setBlobURL} /> 
                         : 
