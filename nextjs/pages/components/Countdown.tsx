@@ -18,7 +18,7 @@ const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: ICountdown)
             if (!started) {
                 setTime(startSeconds); // reset timer
                 startCapture();
-                setStart(true);
+                setStarted(true);
             }
             else 
                 stopCapture();
