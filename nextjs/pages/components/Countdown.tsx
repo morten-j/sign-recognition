@@ -1,6 +1,6 @@
 import React from "react";
 
-interface ICountdown {
+interface Props {
     startSeconds: number;
     startCapture: () => void;
     stopCapture: () => void;
