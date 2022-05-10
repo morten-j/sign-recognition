@@ -3,9 +3,16 @@ from sanic.response import text, HTTPResponse
 from sanic.request import Request
 from sanic_ext import openapi
 from pathlib import Path
+import numpy as np
 import feature_extraction as fe
 import tempfile
 import os
+import utils
+
+model = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
+feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+
+SIGN_LIST = ['book', 'dog', 'fish', 'help', 'man', 'movie', 'pizza', 'woman'] #TODO Check om rækkefølgen stadig passer med ny model
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -94,3 +101,48 @@ async def savevideo(request: Request) -> HTTPResponse:
         file.close()
     else:
         return text("No label provided!", 400)
+
+
+@app.post("/api/predict")
+@openapi.parameter("label", str, description="The label of the sign which is used for saving it the correct place")
+async def predict_video(request: Request) -> HTTPResponse:
+    """
+    Predict sign from video
+    openapi:
+    operationId: predict_video
+    tags:
+      - Predict sign
+    requestBody:
+        content:
+            multipart/form-data:
+                schema:
+                    type: object
+                    properties:
+                        video:
+                            type: string
+                            format: binary
+    responses:
+      '200':
+        description: returns 200 on successful prediction attempt by model
+    """
+        
+    videofile = request.files.get("video")
+
+
+    with tempfile.NamedTemporaryFile() as temp:
+        temp.write(videofile.body) # write the video into a temporary file
+        video = np.array(utils.load_video(temp.name))
+
+    # Expand dims size the model expects a list of videos and not just a video
+    fixed_size = np.expand_dims(video, axis=0)
+    prediction = model.predict(fixed_size)
+
+    # Find index of the max value
+    max_value_index = np.argmax(prediction)
+
+    # Create object to be returned
+    returnObject = dict()
+    returnObject["prediction"] = SIGN_LIST[max_value_index]
+    returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
+
+    return json(returnObject, 200)
