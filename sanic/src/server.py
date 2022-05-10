@@ -112,10 +112,6 @@ async def predict_video(request: Request) -> HTTPResponse:
     operationId: predict_video
     tags:
       - Predict sign
-    parameters:
-      - name: label
-        in: query
-        type: string
     requestBody:
         content:
             multipart/form-data:
@@ -130,7 +126,6 @@ async def predict_video(request: Request) -> HTTPResponse:
         description: returns 200 on successful prediction attempt by model
     """
         
-    label = request.args.get("label")
     videofile = request.files.get("video")
 
 
@@ -147,7 +142,6 @@ async def predict_video(request: Request) -> HTTPResponse:
 
     # Create object to be returned
     returnObject = dict()
-    returnObject["label"] = label
     returnObject["prediction"] = SIGN_LIST[max_value_index]
     returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
 
