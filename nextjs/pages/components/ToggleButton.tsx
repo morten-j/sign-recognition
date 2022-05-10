@@ -2,7 +2,7 @@ import React from "react";
 
 type Props = {
     isToggled: boolean;
-    setIsToggled: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsToggled: React.Dispatch<React.SetStateAction<boolean>>; // react useState setter
     label: string;
 }
 
