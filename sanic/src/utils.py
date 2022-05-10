@@ -136,4 +136,4 @@ def load_model(path):
     if os.path.exists(path):
         return keras.models.load_model(path)
     else:
-        return "Blyat" 
+        return "this is cringe" 
