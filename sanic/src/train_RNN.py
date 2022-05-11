@@ -156,6 +156,10 @@ print("[INFO] evaluating network...")
 _, accuracy = rnn_model.evaluate( test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 
+# Serialize the model to disk
+print("[INFO] serializing network...")
+rnn_model.save("./models/" + args["name"], save_format="h5")
+
 # Plot the training loss and accuracy
 N = EPOCHS
 pltstyle.use("ggplot")
@@ -169,8 +173,3 @@ plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
 plt.savefig("./pictures/" + args["name"] + ".jpg")
-
-
-# Serialize the model to disk
-print("[INFO] serializing network...")
-rnn_model.save("./models/" + args["name"], save_format="h5")
