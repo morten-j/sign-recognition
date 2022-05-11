@@ -15,7 +15,7 @@ type ResponseJSON = {
     prediction: string;
     predictions: { sign: string, certainty: number }[];
 }
-        
+
 export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam, shouldAnalyse, signLabel, setBlobURL } : Props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
@@ -93,7 +93,6 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         method: "POST",
                         body: fd,
                     }
-
                 )
                 .then(() => {
                     window.alert("Video saved on server!"); 
