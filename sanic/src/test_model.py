@@ -21,6 +21,5 @@ print("[INFO] Loading model...")
 rnn_model = keras.models.load_model("models/" + args["model"])
 
 print("[INFO] evaluating network...")
-prediction = rnn_model.predict(test_data)
 _, accuracy = rnn_model.evaluate(test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
