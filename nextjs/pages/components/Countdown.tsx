@@ -9,7 +9,7 @@ interface Props {
 const CountDownTimer = ({ startSeconds, startCapture, stopCapture }: Props) => {
     
     const [time, setTime] = React.useState<number>(startSeconds); // Countdown time
-    const [started, setStart] = React.useState<boolean>(false); // Countdown state or capturing state
+    const [started, setStarted] = React.useState<boolean>(false); // Countdown state or capturing state
 
     const tick = () => {
         
