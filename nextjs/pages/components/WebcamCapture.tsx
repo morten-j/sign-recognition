@@ -1,6 +1,7 @@
 import Webcam from "react-webcam";
 import React from "react";
 import Countdown from "../components/Countdown";
+import { responseSymbol } from "next/dist/server/web/spec-compliant/fetch-event";
 
 type Props = {
     isCapturing : boolean;
@@ -48,7 +49,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
 
     }, [mediaRecorderRef, webcamRef, setIsCapturing]);
 
-    const handleDownload = React.useCallback(() => {
+    const handleDownload = React.useCallback(async () => {
         if (recordedChunks.length) {
             const blob = new Blob(recordedChunks, {
                 type: "video/webm"
@@ -63,30 +64,29 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
 
             // Send to /api/hands if should analyse, else send for video saving only.
             if (shouldAnalyse) {
-                fetch("http://localhost:8000/api/hands", 
+
+                const response = await fetch("http://localhost:8000/api/hands", 
                     {
                         method: "POST",
                         body: fd,
                     }
-                )
-                .then(response => response.json())
-                .then(jsonData => {
-                    
-                    const predictObject: ResponseJSON = JSON.parse(jsonData);
-                    
-                    if (predictObject.prediction == signLabel) {
-                        window.alert("You did the sign correctly!")
-                    } else {
+                );
 
-                        let alertString: string = `Incorrect, recognised sign ${predictObject.prediction}\n`;
-                        const predictions = predictObject.predictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
+                const jsonData = await response.json();
+                const predictObject: ResponseJSON = JSON.parse(jsonData);
+                
+                if (predictObject.prediction == signLabel) {
+                    window.alert("You did the sign correctly!")
+                } else {
 
-                        for (let i=1; i < predictions.length; i++)
-                            alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%`;
-                        window.alert(alertString);
-                    }
-                    hideWebcam();
-                });
+                    let alertString: string = `Incorrect, recognised sign ${predictObject.prediction}\n`;
+                    const predictions = predictObject.predictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
+
+                    for (let i=1; i < predictions.length; i++)
+                        alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%\n`;
+                    window.alert(alertString);
+                }
+                hideWebcam();
             } else {
                 fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
                     {
