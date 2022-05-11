@@ -9,14 +9,12 @@ import tempfile
 import os
 import utils
 
-import pickle
-
 MAX_SEQ_LENGTH = 72
 NUM_FEATURES = 2048
 
 model3DCNN = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
 modelRNN = utils.load_model(os.path.join("models", "test_run")) # Same^^
-feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+feature_extractor = utils.build_feature_extractor()
 
 SIGN_LIST = ['book', 'dog', 'fish', 'help', 'man', 'movie', 'pizza', 'woman'] #TODO Check om rækkefølgen stadig passer med ny model
 
