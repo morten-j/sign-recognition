@@ -12,6 +12,7 @@ import utils
 import tensorflow as tf
 from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPooling3D, BatchNormalization, AveragePooling3D, Flatten
 from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelBinarizer
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -20,6 +21,8 @@ from tensorflow.compat.v1 import Session
 config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = Session(config=config)
+
+LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
 
 IMG_SIZE = 224
 BATCH_SIZE = 4
@@ -30,44 +33,68 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--name", required=True,
 	help="What to call picture and model created")
 ap.add_argument("-m", "--model", required=True,
-	help="Which of the two models to use")
+	help="Which of the models to use")
 args = vars(ap.parse_args())
 
-# Get video ids and their labels
-train_data, test_data = utils.get_data_frame_dicts()
+def getListOfFiles(dirName):
+    # create a list of file and sub directories 
+    # names in the given directory 
+    listOfFile = os.listdir(dirName)
+    allFiles = list()
+    # Iterate over all the entries
+    for entry in listOfFile:
+        # Create full path
+        fullPath = os.path.join(dirName, entry)
+        # If entry is a directory then get the list of files in this directory 
+        if os.path.isdir(fullPath):
+            allFiles = allFiles + getListOfFiles(fullPath)
+        else:
+            allFiles.append(fullPath)
+                
+    return allFiles
 
-# Fransform them into Pandas dataframes
-train_df = pd.DataFrame(train_data)
-test_df = pd.DataFrame(test_data)
+def getListOfLabels(videoPathList):
+    allLabels = list()
+
+    for path in videoPathList:
+        label = path.split(os.path.sep)[-2]
+        if label not in LABELS:
+            continue
+        allLabels.append(label)
+
+    return allLabels
+
+videopaths = getListOfFiles("./videos")
+labels = getListOfLabels(videopaths)
 
 # Used to extract how many classes are present in the training data
 label_processor = keras.layers.StringLookup(
-    num_oov_indices=0, vocabulary=np.unique(train_df["label"])
+    num_oov_indices=0, vocabulary=np.unique(labels)
 )
 class_vocab = label_processor.get_vocabulary()
 
-def prepare_all_videos(df, root_dir):
-    frame = []
-    video_paths = df["id"].values.tolist()
-    labels = df["label"].values
-    labels = label_processor(labels[..., None]).numpy()
+def prepare_all_videos(videopathList):
+    videos = []
 
     # For each video.
-    for idx, path in enumerate(video_paths):
+    for idx, path in enumerate(videopathList):
         # Gather all its frames and add to a list.
-        frames = utils.load_video(os.path.join(root_dir, path + ".mp4"))
-        frame.append(frames)
+        video = utils.load_video(path)
+        videos.append(video)
         
-    return frame, labels
+    return videos
 
-train_data, train_labels = prepare_all_videos(train_df, "video")
-test_data, test_labels = prepare_all_videos(test_df, "video")
+lb = LabelBinarizer()
+train_labels = lb.fit_transform(labels)
 
-fixed_labels = to_categorical(train_labels, len(class_vocab))
+train_data = prepare_all_videos(videopaths)
 
+# Maybe useful
+#fixed_labels = to_categorical(train_labels, len(class_vocab))
 
+# Maybe UseFull
 train_data = np.array(train_data)
-test_data = np.array(test_data)
+#test_data = np.array(test_data)
 
 
 print("[INFO] building model...")
@@ -187,7 +214,7 @@ callbacks = [
 print("[INFO] training head...")
 H = model.fit(
 	train_data,
-    fixed_labels,
+    train_labels,
     validation_split=0.2,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
