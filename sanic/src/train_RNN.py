@@ -168,11 +168,6 @@ H = rnn_model.fit(
 print("[INFO] serializing network...")
 rnn_model.save("./models/" + args["name"], save_format="h5")
 
-# Evaluate the network
-print("[INFO] evaluating network...")
-_, accuracy = rnn_model.evaluate( test_data, test_labels)
-print(f"Test accuracy: {round(accuracy * 100, 2)}%")
-
 # Plot the training loss and accuracy
 N = EPOCHS
 pltstyle.use("ggplot")
