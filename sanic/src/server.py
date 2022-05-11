@@ -144,6 +144,3 @@ async def predict_video(request: Request) -> HTTPResponse:
     returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
 
     return json(returnObject, 200)
-  
-  if (__name__ == "__main__"):
-    app.run("127.0.0.1", 8000)
