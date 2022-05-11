@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import pickle
 import numpy as np
 import pandas as pd
@@ -20,7 +21,19 @@ ap.add_argument("-l", "--load", required=True,
 	help="load pickle data (True), or create pickle data (False)")
 ap.add_argument("-n", "--name", required=True,
 	help="What to call picture and model created from training")
+ap.add_argument("-b", "--batch_size", type=int, default=BATCH_SIZE,
+    help="The batch size for the training of the model")
+ap.add_argument("-e", "--epochs", type=int, default=EPOCHS,
+    help="The amount of epochs for the training of the model")
 args = vars(ap.parse_args())
+
+# Check if batch size and epochs CLI argument values are valid
+if args["batch_size"] <= 0 or args["epochs"] <= 0:
+    print("Please provide a batch size and an epochs amount above 0!")
+    exit(0)
+else:
+    BATCH_SIZE = args["batch_size"]
+    EPOCHS = args["epochs"]
 
 # Get training and test data ids and labels
 train_data, test_data = utils.get_data_frame_dicts()
