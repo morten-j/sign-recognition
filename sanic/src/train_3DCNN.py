@@ -22,8 +22,6 @@ config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = Session(config=config)
 
-LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
-
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--name", required=True,
 	help="What to call picture and model created")
@@ -36,10 +34,10 @@ ap.add_argument("-b", "--batch", required=True,
 args = vars(ap.parse_args())
 
 IMG_SIZE = 224
-BATCH_SIZE = args["batch"]
+BATCH_SIZE = int(args["batch"])
 MAX_SEQ_LENGTH = 72
-EPOCHS = args["epoch"]
-
+EPOCHS = int(args["epoch"])
+LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
 
 
 print("[INFO] preparing dataset")
