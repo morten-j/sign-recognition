@@ -24,17 +24,25 @@ session = Session(config=config)
 
 LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
 
-IMG_SIZE = 224
-BATCH_SIZE = 4
-MAX_SEQ_LENGTH = 72
-EPOCHS = 25
-
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--name", required=True,
 	help="What to call picture and model created")
 ap.add_argument("-m", "--model", required=True,
 	help="Which of the models to use")
+ap.add_argument("-e", "--epoch", required=True,
+	help="How many epochs in this training?")
+ap.add_argument("-b", "--batch", required=True,
+	help="what batch size should be used")
 args = vars(ap.parse_args())
+
+IMG_SIZE = 224
+BATCH_SIZE = args["batch"]
+MAX_SEQ_LENGTH = 72
+EPOCHS = args["epoch"]
+
+
+
+print("[INFO] preparing dataset")
 
 def getListOfFiles(dirName):
     # create a list of file and sub directories 
@@ -48,7 +56,7 @@ def getListOfFiles(dirName):
         # If entry is a directory then get the list of files in this directory 
         if os.path.isdir(fullPath):
             allFiles = allFiles + getListOfFiles(fullPath)
-        else:
+        elif entry.lower().endswith(".mp4"):
             allFiles.append(fullPath)
                 
     return allFiles
@@ -68,10 +76,10 @@ videopaths = getListOfFiles("./videos")
 labels = getListOfLabels(videopaths)
 
 # Used to extract how many classes are present in the training data
-label_processor = keras.layers.StringLookup(
-    num_oov_indices=0, vocabulary=np.unique(labels)
-)
-class_vocab = label_processor.get_vocabulary()
+#label_processor = keras.layers.StringLookup(
+#    num_oov_indices=0, vocabulary=np.unique(labels)
+#)
+#class_vocab = label_processor.get_vocabulary()
 
 def prepare_all_videos(videopathList):
     videos = []
@@ -88,6 +96,8 @@ lb = LabelBinarizer()
 train_labels = lb.fit_transform(labels)
 
 train_data = prepare_all_videos(videopaths)
+
+print(f"Found {len(train_data)} videos")
 
 # Maybe useful
 #fixed_labels = to_categorical(train_labels, len(class_vocab))
@@ -124,7 +134,7 @@ def get_model(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     #x = Dense(units=512, activation="relu")(x)
     x = Dropout(0.3)(x)
 
-    outputs = Dense(units=len(class_vocab), activation="softmax")(x)
+    outputs = Dense(units=len(LABELS), activation="softmax")(x)
 
     # Define the model.
     model = keras.Model(inputs, outputs, name="3DCNN")
@@ -149,7 +159,7 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
     x = GlobalAveragePooling3D()(x)
 
     x = Dense(units=256, activation="relu")(x)
-    outputs = Dense(len(class_vocab), activation="softmax")(x)
+    outputs = Dense(len(LABELS), activation="softmax")(x)
 
     model = keras.Model(inputs, outputs, name="3DCNN_2")
     return model
@@ -178,7 +188,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
     x = Dense(units=256, activation="relu")(x)
     x = Flatten()(x)
-    outputs = Dense(units=len(class_vocab), activation="softmax")(x)
+    outputs = Dense(units=len(LABELS), activation="softmax")(x)
 
     model = keras.Model(inputs, outputs, name="3DCNN_3")
 
@@ -211,7 +221,7 @@ callbacks = [
 ]
 
 
-print("[INFO] training head...")
+print("[INFO] training model...")
 H = model.fit(
 	train_data,
     train_labels,
@@ -227,25 +237,25 @@ model.save("./models/" + args["name"], save_format="h5")
 
 
 # evaluate the network
-print("[INFO] evaluating network...")
+#print("[INFO] evaluating network...")
 #predictions = model.predict(x=testX.astype("float32"), batch_size=32)
 #print(classification_report(testY.argmax(axis=1),
 #	predictions.argmax(axis=1), target_names=lb.classes_))
 # plot the training loss and accuracy
-_, accuracy = model.evaluate(test_data, test_labels)
-print(f"Test accuracy: {round(accuracy * 100, 2)}%")
-print(accuracy)
+#_, accuracy = model.evaluate(test_data, test_labels)
+#print(f"Test accuracy: {round(accuracy * 100, 2)}%")
+#print(accuracy)
 
 
-N = EPOCHS
-pltstyle.use("ggplot")
-plt.figure()
-plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, N), H.history["accuracy"], label="train_acc")
-plt.plot(np.arange(0, N), H.history["val_accuracy"], label="val_acc")
-plt.title("Training Loss and Accuracy on Dataset")
-plt.xlabel("Epoch #")
-plt.ylabel("Loss/Accuracy")
-plt.legend(loc="lower left")
-plt.savefig("./pictures/" + args["name"] + ".jpg")
+#N = EPOCHS
+#pltstyle.use("ggplot")
+#plt.figure()
+#plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
+#plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+#plt.plot(np.arange(0, N), H.history["accuracy"], label="train_acc")
+#plt.plot(np.arange(0, N), H.history["val_accuracy"], label="val_acc")
+#plt.title("Training Loss and Accuracy on Dataset")
+#plt.xlabel("Epoch #")
+#plt.ylabel("Loss/Accuracy")
+#plt.legend(loc="lower left")
+#plt.savefig("./pictures/" + args["name"] + ".jpg")
