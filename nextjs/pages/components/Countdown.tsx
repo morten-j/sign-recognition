@@ -1,6 +1,6 @@
 import React from "react";
 
-interface Props {
+type Props = {
     startSeconds: number;
     startCapture: () => void;
     stopCapture: () => void;

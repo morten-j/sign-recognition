@@ -11,6 +11,11 @@ type Props = {
     setBlobURL: React.Dispatch<React.SetStateAction<string>>;
 }
 
+type ResponseJSON = {
+    prediction: string;
+    predictions: { sign: string, certainty: number }[];
+}
+
 export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam, shouldAnalyse, signLabel, setBlobURL } : Props) {
     const webcamRef = React.useRef(null);
     const mediaRecorderRef = React.useRef(null);
@@ -63,18 +68,36 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         method: "POST",
                         body: fd,
                     }
-                );
+                )
+                .then(response => response.json())
+                .then(jsonData => {
+                    
+                    const predictObject: ResponseJSON = JSON.parse(jsonData);
+                    
+                    if (predictObject.prediction == signLabel) {
+                        window.alert("You did the sign correctly!")
+                    } else {
+
+                        let alertString: string = `Incorrect, recognised sign ${predictObject.prediction}\n`;
+                        const predictions = predictObject.predictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
+
+                        for (let i=1; i < predictions.length; i++)
+                            alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%`;
+                        window.alert(alertString);
+                    }
+                    hideWebcam();
+                });
             } else {
-                const response = fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
+                fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
                     {
                         method: "POST",
                         body: fd,
                     }
-                );
-                response.then(() => {
+                )
+                .then(() => {
                     window.alert("Video saved on server!"); 
                     hideWebcam();
-                })
+                });
             }
             setRecordedChunks([]);
         }

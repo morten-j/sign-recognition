@@ -131,7 +131,7 @@ async def predict_video(request: Request) -> HTTPResponse:
         temp.write(videofile.body) # write the video into a temporary file
         video = np.array(utils.load_video(temp.name))
 
-    # Expand dims size the model expects a list of videos and not just a video
+     # Expand dims size the model expects a list of videos and not just a video
     fixed_size = np.expand_dims(video, axis=0)
     prediction = model.predict(fixed_size)
 
