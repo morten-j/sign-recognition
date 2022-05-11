@@ -9,6 +9,8 @@ import tempfile
 import os
 import utils
 
+import pickle
+
 MAX_SEQ_LENGTH = 72
 NUM_FEATURES = 2048
 
@@ -152,7 +154,6 @@ async def predict_video(request: Request) -> HTTPResponse:
     return json(returnObject, 200)
 
 @app.post("/api/predict/rnn")
-@openapi.parameter("label", str, description="The label of the sign which is used for saving it the correct place")
 async def predict_video(request: Request) -> HTTPResponse:
     """
     Predict sign from video with RNN model
@@ -183,6 +184,7 @@ async def predict_video(request: Request) -> HTTPResponse:
     # Extract features from each frame in the video
     frames = frames[None, ...]
 
+    frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
     frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
 
     for i, batch in enumerate(frames):
@@ -190,9 +192,13 @@ async def predict_video(request: Request) -> HTTPResponse:
         length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
         for j in range(length):
             frame_features[i,j,:] = feature_extractor.predict(batch[None, j, :])
+        frame_mask[i, :length] = 1
+
+    # Make frame data tupple from features and mask
+    frame_data = (frame_features, frame_mask)
 
     # Predict sign of video
-    prediction = modelRNN.predict(frame_features)
+    prediction = modelRNN.predict(frame_data)
 
     # Find index of the max value
     max_value_index = np.argmax(prediction)
