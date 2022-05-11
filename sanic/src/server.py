@@ -1,4 +1,3 @@
-import enum
 from sanic import Sanic, json
 from sanic.response import text, HTTPResponse
 from sanic.request import Request
