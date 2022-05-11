@@ -6,42 +6,52 @@ import ToggleButton from "./components/ToggleButton";
 
 export default function LearningPage() {
 
-    const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
-
-    const [showWebcam, setShowWebcam] = useState(false)
     const [showSignTutorial, setShowSignTutorial] = useState(false);
+    const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+
+    const [showWebcam, setShowWebcam] = useState(true);
+    const [isCapturing, setIsCapturing] = React.useState(false);
+    const [blobURL, setBlobURL] = React.useState("");
+    const [shouldAnalyse, setShouldAnalyse] = useState(false);
 
     const closeSignTutorial = () => setShowSignTutorial(false);
     const displaySignTutorial = () => setShowSignTutorial(true);
 
-    const [[currentSign, URL], setCurrentSign] = useState(getNextSign());
+    const buttonCSS = "bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded";
 
     /* Should analyse toggle switch state*/
-    const [shouldAnalyse, setShouldAnalyse] = useState(false);
 
     return (
         <>
             {showSignTutorial && <SignTutorial signName={currentSign!} url={URL!} closeModal={closeSignTutorial} />}
-
             <div className="p-6 mx-auto bg-slate-200 mt-10 rounded-xl shadow-lg flex flex-col w-fit gap-8">
                 <h1 className="text-center text-3xl font-semibold">ASL recognizer: {currentSign === undefined ? "Finished!" : currentSign}</h1>
 
                 <div className="self-center">
-                    {showWebcam ? <WebcamCapture shouldAnalyse={shouldAnalyse} signLabel={currentSign!} /> : <ReactPlayer url="sign_videos/signvid.webm" controls={true} />}
+                    {/* TODO React player displays "You haven't recorded a video yet" */}
+                    {showWebcam 
+                        ? <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} setBlobURL = {setBlobURL} /> 
+                        : <ReactPlayer url={blobURL} controls={true} />
+                    }
                 </div>
-
                 <div className="self-center flex gap-2">
+                    {showWebcam 
+                        ? <button onClick={() => setIsCapturing(true)} className={buttonCSS}>Start recording</button>
+                        : <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
+                    }
+
+                    {/* TODO "Check" button, hvis der eksistere en video. Check button laves til "Next" hvis ML siger yes, og ellers laves der et popup til bruger om no fra ML */}
+                    {/* ^ Ovenstående er afhængig af om vi vil have auto send (som pt), eller om man skal kunne gennemse og retake */}
+
+                    {showWebcam && <button onClick={() => setShowWebcam(false)} className={buttonCSS}>Video</button>}
+
+                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Tutorial</button>}
+
                     <button onClick={() => setCurrentSign(getNextSign(currentSign))} className={buttonCSS}>
-                        {currentSign === undefined ? "Restart" : "Next Sign"}
+                        {currentSign === undefined ? "Restart" : "Skip"}
                     </button>
 
-                    <button onClick={() => setShowWebcam(!showWebcam)} className={buttonCSS}>
-                        {showWebcam ? "Back to vid" : "Record"}
-                    </button>
-
-                    {currentSign !== undefined && <button onClick={displaySignTutorial} className={buttonCSS}>Show Sign Tutorial</button>}
-
-                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="should analyse" />
+                    <ToggleButton isToggled={shouldAnalyse} setIsToggled={setShouldAnalyse} label="Should analyse" />
                 </div>
             </div>
         </>
@@ -65,6 +75,5 @@ const getNextSign = (currentSign?: string): [string?, string?] => {
         if (currentSign == keys[i])
             return [keys[i+1], signData[keys[i+1]]];
     }
-
     return [undefined, undefined];
 }

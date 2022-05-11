@@ -56,9 +56,7 @@ async def hands(request: Request) -> HTTPResponse:
     with tempfile.NamedTemporaryFile() as temp:
 
         temp.write(videofile.body) # write the video into a temporary file
-        
         return json(fe.getLandmarksFromVideo(temp.name, flipped), 200)
-
 
 @app.post("/api/savevideo")
 @openapi.parameter("label", str, description="The label of the sign which is used for saving it the correct place")
@@ -67,8 +65,8 @@ async def savevideo(request: Request) -> HTTPResponse:
     Save the video on the server
     openapi:
     operationId: savevideo
-    tags:
-      - Mediapipe
+    tags: 
+      - SaveVideo
     parameters:
       - name: label
         in: query
@@ -90,7 +88,7 @@ async def savevideo(request: Request) -> HTTPResponse:
     label = request.args.get("label")
     videofile = request.files.get("video")
 
-    if(label != ""):
+    if (label != ""):
         currentdir = os.path.dirname(__file__)
         video_dir_path = os.path.join(currentdir, f"./videos/{label}")
 
@@ -99,9 +97,9 @@ async def savevideo(request: Request) -> HTTPResponse:
         file = open(f"{video_dir_path}/{request.id}.mp4", "wb")
         file.write(videofile.body)
         file.close()
+        return text("Succesfully saved file", 200)
     else:
         return text("No label provided!", 400)
-
 
 @app.post("/api/predict")
 @openapi.parameter("label", str, description="The label of the sign which is used for saving it the correct place")
