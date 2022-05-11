@@ -99,7 +99,7 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
                 for i in range(len(frames), MAX_SEQ_LENGTH):
                     frames.append(pad_frame)
                 break
-            frame = crop_center_square(frame)
+            #frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
             frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
             frames.append(frame)
