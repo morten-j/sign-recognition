@@ -1,3 +1,4 @@
+import enum
 from sanic import Sanic, json
 from sanic.response import text, HTTPResponse
 from sanic.request import Request
@@ -8,6 +9,9 @@ import feature_extraction as fe
 import tempfile
 import os
 import utils
+
+MAX_SEQ_LENGTH = 72
+NUM_FEATURES = 2048
 
 model3DCNN = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
 modelRNN = utils.load_model(os.path.join("models", "test_run")) # Same^^
@@ -173,18 +177,23 @@ async def predict_video(request: Request) -> HTTPResponse:
         
     videofile = request.files.get("video")
 
-
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
-        video = np.array(utils.load_video(temp.name))
+        frames = (utils.load_video(temp.name))
 
+    # Extract features from each frame in the video
+    frames = frames[None, ...]
 
-    # TODO: Figure out how to extract video features for using in the model predict function
-  
+    frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
 
-    # Expand dims size the model expects a list of videos and not just a video
-    fixed_size = np.expand_dims(video, axis=0)
-    prediction = modelRNN.predict(fixed_size)
+    for i, batch in enumerate(frames):
+        video_length = batch.shape[0]
+        length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
+        for j in range(length):
+            frame_features[i,j,:] = feature_extractor.predict(batch[None, j, :])
+
+    # Predict sign of video
+    prediction = modelRNN.predict(frame_features)
 
     # Find index of the max value
     max_value_index = np.argmax(prediction)
