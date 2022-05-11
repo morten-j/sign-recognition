@@ -141,6 +141,12 @@ async def predict_video(request: Request) -> HTTPResponse:
     # Create object to be returned
     returnObject = dict()
     returnObject["prediction"] = SIGN_LIST[max_value_index]
-    returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
+
+    predictions = prediction.tolist()[0]
+    returnPredictions = []
+    for index, sign in enumerate(SIGN_LIST):
+        returnPredictions.append({ predictions[index], sign })
+
+    returnObject["predictionObjects"] = returnPredictions
 
     return json(returnObject, 200)
