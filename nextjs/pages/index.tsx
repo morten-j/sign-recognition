@@ -29,16 +29,15 @@ export default function LearningPage() {
 
                 <div className="self-center">
                     {/* TODO React player displays "You haven't recorded a video yet" */}
-                    {showWebcam ? 
-                        <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} setBlobURL = {setBlobURL} /> 
-                        : 
-                        <ReactPlayer url={blobURL} controls={true} />}
+                    {showWebcam 
+                        ? <WebcamCapture isCapturing={isCapturing} setIsCapturing={setIsCapturing} hideWebcam={() => setShowWebcam(false)} shouldAnalyse={shouldAnalyse} signLabel={currentSign!} setBlobURL = {setBlobURL} /> 
+                        : <ReactPlayer url={blobURL} controls={true} />
+                    }
                 </div>
                 <div className="self-center flex gap-2">
-                    {showWebcam ? 
-                        <button onClick={() => setIsCapturing(true)} className={buttonCSS}>Start recording</button>
-                        :
-                        <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
+                    {showWebcam 
+                        ? <button onClick={() => setIsCapturing(true)} className={buttonCSS}>Start recording</button>
+                        : <button onClick={() => setShowWebcam(true)} className={buttonCSS}>Record</button>
                     }
 
                     {/* TODO "Check" button, hvis der eksistere en video. Check button laves til "Next" hvis ML siger yes, og ellers laves der et popup til bruger om no fra ML */}
