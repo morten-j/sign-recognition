@@ -88,16 +88,14 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                 }
                 hideWebcam();
             } else {
-                fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
+                await fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
                     {
                         method: "POST",
                         body: fd,
                     }
                 )
-                .then(() => {
-                    window.alert("Video saved on server!"); 
-                    hideWebcam();
-                });
+                window.alert("Video saved on server!"); 
+                hideWebcam();
             }
             setRecordedChunks([]);
         }
