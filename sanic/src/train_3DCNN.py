@@ -10,7 +10,7 @@ import argparse
 import os
 import utils
 import tensorflow as tf
-from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPooling3D, BatchNormalization, AveragePooling3D, Flatten
+from tensorflow.keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPooling3D, BatchNormalization, AveragePooling3D, Flatten
 from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelBinarizer
 
@@ -180,7 +180,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
 
-    x = Conv3D(filters=256, kernel_size=(6,1,1), activation="relu")(x)
+    x = Conv3D(filters=256, kernel_size=(3,3,3), activation="relu")(x)
     x = Conv3D(filters=512, kernel_size=1 , activation="relu")(x)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
