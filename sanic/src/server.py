@@ -172,31 +172,30 @@ async def predict_video(request: Request) -> HTTPResponse:
       '200':
         description: returns 200 on successful prediction attempt by model
     """
-        
+    
+    # Load video
     videofile = request.files.get("video")
 
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
         frames = (utils.load_video(temp.name))
 
-    # Extract features from each frame in the video
-    frames = frames[None, ...]
-
+    # Prepare frame mask and features arrays
     frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
     frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
 
-    for i, batch in enumerate(frames):
-        video_length = batch.shape[0]
-        length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
-        for j in range(length):
-            frame_features[i,j,:] = feature_extractor.predict(batch[None, j, :])
-        frame_mask[i, :length] = 1
+    # Extract features from each frame in the video
+    video_length = frames.shape[0]
+    length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
+    for j in range(length): # Go through each frame and feature extract to save features in frame features array
+        frame_features[0,j,:] = feature_extractor.predict(frames[None, j, :])
+    frame_mask[0, :length] = 1
 
-    # Make frame data tupple from features and mask
-    frame_data = (frame_features, frame_mask)
+    # Make video data tupple containing frame features and mask
+    video_data = (frame_features, frame_mask)
 
     # Predict sign of video
-    prediction = modelRNN.predict(frame_data)
+    prediction = modelRNN.predict(video_data)
 
     # Find index of the max value
     max_value_index = np.argmax(prediction)
