@@ -188,7 +188,7 @@ async def predict_video(request: Request) -> HTTPResponse:
     video_length = frames.shape[0]
     length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
 
-    # Extract features by going through each frame and feature extract to save features in frame features array
+    # Extract features by going through each frame and feature extract to save features in frame features array to be used for prediction
     for j in range(length):
         frame_features[0,j,:] = feature_extractor.predict(frames[None, j, :])
     frame_mask[0, :length] = 1
