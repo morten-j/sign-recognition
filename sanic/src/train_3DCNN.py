@@ -14,6 +14,8 @@ from tensorflow.keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling
 from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelBinarizer
 
+# TODO fix import, så de kommer fra det samme sted (keras og tensorflow)
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from tensorflow.compat.v1 import ConfigProto
