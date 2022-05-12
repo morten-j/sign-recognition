@@ -142,11 +142,14 @@ async def predict_video(request: Request) -> HTTPResponse:
     returnObject = dict()
     returnObject["prediction"] = SIGN_LIST[max_value_index]
 
-    predictions = prediction.tolist()[0]
-    returnPredictions = []
-    for index, sign in enumerate(SIGN_LIST):
-        returnPredictions.append({ predictions[index], sign })
+    # Nested list. First element, because it is only 1 video (and can accept multiple)
+    all_predictions = prediction.tolist()[0]
+    prediction_objects = []
 
-    returnObject["predictionObjects"] = returnPredictions
+    # Combining predictions (floats) with their sign. Otherwise a duplicate SIGN_LIST would be needed on frontend
+    for index, sign in enumerate(SIGN_LIST):
+        prediction_objects.append({ all_predictions[index], sign })
+
+    returnObject["predictionObjects"] = prediction_objects
 
     return json(returnObject, 200)
