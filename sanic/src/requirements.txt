@@ -1,5 +1,6 @@
 sanic[ext]
-tensorflow
+tensorflow==2.8.0
+keras==2.8.0
 numpy
 matplotlib
 pyqt5
