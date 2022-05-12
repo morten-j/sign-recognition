@@ -131,7 +131,7 @@ async def predict_video(request: Request) -> HTTPResponse:
         temp.write(videofile.body) # write the video into a temporary file
         video = np.array(utils.load_video(temp.name))
 
-    # Expand dims size the model expects a list of videos and not just a video
+     # Expand dims size the model expects a list of videos and not just a video
     fixed_size = np.expand_dims(video, axis=0)
     prediction = model.predict(fixed_size)
 
@@ -141,6 +141,15 @@ async def predict_video(request: Request) -> HTTPResponse:
     # Create object to be returned
     returnObject = dict()
     returnObject["prediction"] = SIGN_LIST[max_value_index]
-    returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
+
+    # Nested list. First element, because it is only 1 video (and can accept multiple)
+    all_predictions = prediction.tolist()[0]
+    prediction_objects = []
+
+    # Combining predictions (floats) with their sign. Otherwise a duplicate SIGN_LIST would be needed on frontend
+    for index, sign in enumerate(SIGN_LIST):
+        prediction_objects.append({ all_predictions[index], sign })
+
+    returnObject["predictionObjects"] = prediction_objects
 
     return json(returnObject, 200)
