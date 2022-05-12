@@ -51,7 +51,7 @@ if args["load"] == "True":
 
 elif args["load"] == "False":
 
-    videoPaths = utils.getListOfFiles(".\\video\\dataset\\train\\") #TODO FIX FOR OS
+    videoPaths = utils.getListOfFiles("./video/dataset/train/") #TODO FIX FOR OS
     labels = utils.getListOfLabels(videoPaths)
 
     # Extract training and test data from videos
