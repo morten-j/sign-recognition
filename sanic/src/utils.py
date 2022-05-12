@@ -6,7 +6,6 @@ import keras
 import tensorflow as tf
 from tensorflow.keras import Model, Input
 from tensorflow.keras.applications import InceptionV3
-from tensorflow.keras.applications.inception_v3 import preprocess_input
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
@@ -125,7 +124,7 @@ def build_feature_extractor():
         input_shape=(IMG_SIZE, IMG_SIZE, 3),
     )
 
-    preprocess_input = preprocess_input
+    preprocess_input = tf.keras.applications.inception_v3.preprocess_input
 
     inputs = Input((IMG_SIZE, IMG_SIZE, 3))
     preprocessed = preprocess_input(inputs)
