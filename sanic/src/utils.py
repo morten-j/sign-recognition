@@ -9,6 +9,8 @@ IMG_SIZE = 224
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
 
+LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
+
 pad_frame = np.zeros(shape=(IMG_SIZE,IMG_SIZE,3), dtype="int32")
 
 def get_partitions_and_labels():
@@ -138,3 +140,32 @@ def load_model(path):
         return keras.models.load_model(path)
     else:
         return "this is cringe" 
+
+
+def getListOfFiles(dirName):
+    # create a list of file and sub directories 
+    # names in the given directory 
+    listOfFile = os.listdir(dirName)
+    allFiles = list()
+    # Iterate over all the entries
+    for entry in listOfFile:
+        # Create full path
+        fullPath = os.path.join(dirName, entry)
+        # If entry is a directory then get the list of files in this directory 
+        if os.path.isdir(fullPath):
+            allFiles = allFiles + getListOfFiles(fullPath)
+        elif entry.lower().endswith(".mp4"):
+            allFiles.append(fullPath)
+                
+    return allFiles
+
+def getListOfLabels(videoPathList):
+    allLabels = list()
+
+    for path in videoPathList:
+        label = path.split(os.path.sep)[-2]
+        if label not in LABELS:
+            continue
+        allLabels.append(label)
+
+    return allLabels

@@ -8,12 +8,15 @@ import matplotlib.style as pltstyle
 import argparse 
 import os
 import utils
+from sklearn.preprocessing import LabelBinarizer
 
 IMG_SIZE = 224
 BATCH_SIZE = 16
 MAX_SEQ_LENGTH = 72
 NUM_FEATURES = 2048
 EPOCHS = 50
+
+LABELS = set(["pizza", "book", "man", "woman", "dog", "fish", "help", "movie"])
 
 # Define CLI arguments
 ap = argparse.ArgumentParser()
@@ -35,20 +38,6 @@ else:
     BATCH_SIZE = args["batch_size"]
     EPOCHS = args["epochs"]
 
-# Get training and test data ids and labels
-train_data, test_data = utils.get_data_frame_dicts()
-
-# Setup the training and test ids and labels as a DataFrame (Match the id to the label)
-train_df = pd.DataFrame(train_data)
-test_df = pd.DataFrame(test_data)
-
-print(f"[INFO] Total number of videos for training: {len(train_df)}")
-print(f"[INFO] Total number of videos for testing: {len(test_df)}")
-
-# Map the unique labels of the training data to integer indices
-label_processor = keras.layers.StringLookup(
-    num_oov_indices=0, vocabulary=np.unique(train_df["label"])
-)
 
 print("[INFO] loading feature extractor...")
 feature_extractor = utils.build_feature_extractor()
@@ -61,31 +50,27 @@ if args["load"] == "True":
 
     with open("./data/trainlabels.pkl", 'rb') as file:
         train_labels = pickle.load(file)
-        
-    with open("./data/testdata.pkl", 'rb') as file:
-        test_data = pickle.load(file)
-
-    with open("./data/testlabels.pkl", 'rb') as file:
-        test_labels = pickle.load(file)
 
 elif args["load"] == "False":
+
+    videoPaths = utils.getListOfFiles("./videos")
+    labels = utils.getListOfLabels(videoPaths)
+
     # Extract training and test data from videos
     print("[INFO] loading videos...")
-    def prepare_all_videos(df, root_dir):
-        num_videos = len(df)
-        video_paths = df["id"].values.tolist()
-        labels = df["label"].values
-        labels = label_processor(labels[..., None]).numpy()
+    def prepare_all_videos(videoPathList):
+        num_videos = len(videoPathList)
+
+        print(f"[INFO] Found {num_videos} video for training...")
 
         frame_masks = np.zeros(shape=(num_videos, MAX_SEQ_LENGTH), dtype="bool")
         frame_features = np.zeros(
             shape=(num_videos, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32"
         )
-
         # For each video.
-        for idx, path in enumerate(video_paths):
+        for idx, path in enumerate(videoPathList):
             # Gather all its frames and add to a list.
-            frames = utils.load_video(os.path.join(root_dir, path + ".mp4"))
+            frames = utils.load_video(path)
             frames = frames[None, ...]
 
             temp_frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
@@ -102,10 +87,13 @@ elif args["load"] == "False":
             frame_masks[idx,] = temp_frame_mask.squeeze()
 
 
-        return (frame_features, frame_masks), labels
+        return (frame_features, frame_masks)
 
-    train_data, train_labels = prepare_all_videos(train_df, "video")
-    test_data, test_labels = prepare_all_videos(test_df, "video")
+    lb = LabelBinarizer()
+
+    train_data = prepare_all_videos(videoPaths)
+    train_data = np.array(train_data)
+    train_labels = lb.fit_transform(labels)
 
     # Save data, to save time later
     with open("./data/traindata.pkl", 'wb') as file:
@@ -113,18 +101,10 @@ elif args["load"] == "False":
 
     with open("./data/trainlabels.pkl", 'wb') as file:
             pickle.dump(train_labels, file)
-
-    with open("./data/testdata.pkl", 'wb') as file:
-            pickle.dump(test_data, file)
-
-    with open("./data/testlabels.pkl", 'wb') as file:
-            pickle.dump(test_labels, file)
 else:
     print("Specify valid load arguments!")
     exit(0)
 
-# Get the vocabulary extracted from the training data previously
-class_vocab = label_processor.get_vocabulary()
 
 print("[INFO] building model...")
 frame_features_input = keras.Input((MAX_SEQ_LENGTH, NUM_FEATURES))
@@ -138,7 +118,7 @@ x = keras.layers.GRU(16, return_sequences=True)(frame_features_input, mask=mask_
 x = keras.layers.GRU(8)(x)
 x = keras.layers.Dropout(0.6)(x)
 x = keras.layers.Dense(8, activation="relu")(x)
-output = keras.layers.Dense(len(class_vocab), activation="softmax")(x)
+output = keras.layers.Dense(len(LABELS), activation="softmax")(x)
 
 rnn_model = keras.Model([frame_features_input, mask_input], output)
 
