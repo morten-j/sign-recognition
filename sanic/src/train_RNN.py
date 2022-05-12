@@ -90,7 +90,6 @@ elif args["load"] == "False":
     lb = LabelBinarizer()
 
     train_data = prepare_all_videos(videoPaths)
-    train_data = np.array(train_data)
     train_labels = lb.fit_transform(labels)
 
     # Save data, to save time later
