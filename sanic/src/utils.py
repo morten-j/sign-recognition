@@ -89,7 +89,7 @@ def crop_center_square(frame):
     return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
 
 
-def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
+def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, shouldShow=False):
     cap = cv2.VideoCapture(path)
     frames = []
     try:
@@ -101,8 +101,18 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
                 break
             #frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
-            frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
+
+            if convertToBlackAndWhite:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            else:
+                frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
+
+             # displaying the video
+            if shouldShow:
+                cv2.imshow("Live", frame)
+
             frames.append(frame)
+
 
             if len(frames) == MAX_SEQ_LENGTH:
                 break
