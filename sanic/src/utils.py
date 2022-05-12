@@ -4,6 +4,9 @@ import cv2
 import numpy as np
 import keras
 import tensorflow as tf
+from tensorflow.keras import Model, Input
+from tensorflow.keras.applications import InceptionV3
+from tensorflow.keras.applications.inception_v3 import preprocess_input
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
@@ -115,16 +118,16 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE)):
 
 
 def build_feature_extractor():
-    feature_extractor = tf.keras.applications.InceptionV3(
+    feature_extractor = InceptionV3(
         weights="imagenet",
         include_top=False,
         pooling="avg",
         input_shape=(IMG_SIZE, IMG_SIZE, 3),
     )
 
-    preprocess_input = keras.applications.inception_v3.preprocess_input
+    preprocess_input = preprocess_input
 
-    inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
+    inputs = Input((IMG_SIZE, IMG_SIZE, 3))
     preprocessed = preprocess_input(inputs)
 
     outputs = feature_extractor(preprocessed)
@@ -132,7 +135,7 @@ def build_feature_extractor():
     for layer in feature_extractor.layers:
         layer.trainable = False
 
-    return keras.Model(inputs, outputs, name="feature_extractor")
+    return Model(inputs, outputs, name="feature_extractor")
 
 
 def load_model(path):
