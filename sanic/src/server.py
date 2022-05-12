@@ -184,10 +184,12 @@ async def predict_video(request: Request) -> HTTPResponse:
     frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
     frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
 
-    # Extract features from each frame in the video
+    # Determine the video length
     video_length = frames.shape[0]
     length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
-    for j in range(length): # Go through each frame and feature extract to save features in frame features array
+
+    # Extract features by going through each frame and feature extract to save features in frame features array
+    for j in range(length):
         frame_features[0,j,:] = feature_extractor.predict(frames[None, j, :])
     frame_mask[0, :length] = 1
 
