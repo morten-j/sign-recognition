@@ -51,7 +51,7 @@ if args["load"] == "True":
 
 elif args["load"] == "False":
 
-    videoPaths = utils.getListOfFiles("./videos")
+    videoPaths = utils.getListOfFiles(".\\video\\dataset\\train\\") #TODO FIX FOR OS
     labels = utils.getListOfLabels(videoPaths)
 
     # Extract training and test data from videos
@@ -88,9 +88,10 @@ elif args["load"] == "False":
         return (frame_features, frame_masks)
 
     lb = LabelBinarizer()
+    train_labels = lb.fit_transform(labels)
 
     train_data = prepare_all_videos(videoPaths)
-    train_labels = lb.fit_transform(labels)
+    
 
     # Save data, to save time later
     with open("./data/traindata.pkl", 'wb') as file:

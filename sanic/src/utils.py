@@ -166,6 +166,7 @@ def getListOfLabels(videoPathList):
 
     for path in videoPathList:
         label = path.split(os.path.sep)[-2]
+        print(label)
         if label not in LABELS:
             continue
         allLabels.append(label)
