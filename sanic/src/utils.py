@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 import keras
-from tensorflow import keras
+import tensorflow as tf
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
@@ -123,12 +123,13 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, 
 
 
 def build_feature_extractor():
-    feature_extractor = keras.applications.InceptionV3(
+    feature_extractor = tf.keras.applications.InceptionV3(
         weights="imagenet",
         include_top=False,
         pooling="avg",
         input_shape=(IMG_SIZE, IMG_SIZE, 3),
     )
+
     preprocess_input = keras.applications.inception_v3.preprocess_input
 
     inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
@@ -140,3 +141,10 @@ def build_feature_extractor():
         layer.trainable = False
 
     return keras.Model(inputs, outputs, name="feature_extractor")
+
+
+def load_model(path):
+    if os.path.exists(path):
+        return keras.models.load_model(path)
+    else:
+        return "this is cringe" 

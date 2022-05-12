@@ -1,10 +1,11 @@
+from asyncio.windows_events import NULL
 import pickle
 import numpy as np
 import pandas as pd
 import keras
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
-import argparse
+import argparse 
 import os
 import utils
 
@@ -14,34 +15,47 @@ MAX_SEQ_LENGTH = 72
 NUM_FEATURES = 2048
 EPOCHS = 50
 
+# Define CLI arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-l", "--load", required=True,
-	help="load pickle data, or create pickle data")
-ap.add_argument("-p", "--picture", required=True,
-	help="What to call picture created from training history")
-ap.add_argument("-m", "--model", required=True,
-	help="What to call model file")
+	help="load pickle data (True), or create pickle data (False)")
+ap.add_argument("-n", "--name", required=True,
+	help="What to call picture and model created from training")
+ap.add_argument("-b", "--batch_size", type=int, default=BATCH_SIZE,
+    help="The batch size for the training of the model")
+ap.add_argument("-e", "--epochs", type=int, default=EPOCHS,
+    help="The amount of epochs for the training of the model")
 args = vars(ap.parse_args())
 
-# Get video ids and their labels
+# Check if batch size and epochs CLI argument values are valid
+if args["batch_size"] <= 0 or args["epochs"] <= 0:
+    print("Please provide a batch size and an epochs amount above 0!")
+    exit(0)
+else:
+    BATCH_SIZE = args["batch_size"]
+    EPOCHS = args["epochs"]
+
+# Get training and test data ids and labels
 train_data, test_data = utils.get_data_frame_dicts()
 
-# Fransform them into Pandas dataframes
+# Setup the training and test ids and labels as a DataFrame (Match the id to the label)
 train_df = pd.DataFrame(train_data)
 test_df = pd.DataFrame(test_data)
 
-# Used to extract how many classes are present in the training data
+print(f"[INFO] Total number of videos for training: {len(train_df)}")
+print(f"[INFO] Total number of videos for testing: {len(test_df)}")
+
+# Map the unique labels of the training data to integer indices
 label_processor = keras.layers.StringLookup(
     num_oov_indices=0, vocabulary=np.unique(train_df["label"])
 )
 
-
 print("[INFO] loading feature extractor...")
 feature_extractor = utils.build_feature_extractor()
 
-
 if args["load"] == "True":
-
+    # Load the training and test data and labels from the stored pkl files
+    print("[INFO] loading pickle data...")
     with open("./data/traindata.pkl", 'rb') as file:
         train_data = pickle.load(file)
 
@@ -55,6 +69,7 @@ if args["load"] == "True":
         test_labels = pickle.load(file)
 
 elif args["load"] == "False":
+    # Extract training and test data from videos
     print("[INFO] loading videos...")
     def prepare_all_videos(df, root_dir):
         num_videos = len(df)
@@ -105,12 +120,11 @@ elif args["load"] == "False":
     with open("./data/testlabels.pkl", 'wb') as file:
             pickle.dump(test_labels, file)
 else:
-    print("Specify valid load argument!!!")
+    print("Specify valid load arguments!")
     exit(0)
 
-
+# Get the vocabulary extracted from the training data previously
 class_vocab = label_processor.get_vocabulary()
-
 
 print("[INFO] building model...")
 frame_features_input = keras.Input((MAX_SEQ_LENGTH, NUM_FEATURES))
@@ -118,17 +132,17 @@ mask_input = keras.Input((MAX_SEQ_LENGTH,), dtype="bool")
 
 # Refer to the following tutorial to understand the significance of using `mask`:
 # https://keras.io/api/layers/recurrent_layers/gru/
-x = keras.layers.GRU(524, return_sequences=True)(
-    frame_features_input, mask=mask_input
-)
-x = keras.layers.GRU(124)(x)
-x = keras.layers.Dropout(0.4)(x)
-x = keras.layers.Dense(64, activation="relu")(x)
+
+# Create RNN model
+x = keras.layers.GRU(16, return_sequences=True)(frame_features_input, mask=mask_input)
+x = keras.layers.GRU(8)(x)
+x = keras.layers.Dropout(0.6)(x)
+x = keras.layers.Dense(8, activation="relu")(x)
 output = keras.layers.Dense(len(class_vocab), activation="softmax")(x)
 
 rnn_model = keras.Model([frame_features_input, mask_input], output)
 
-
+# Compile the created model
 print("[INFO] compiling model...")
 rnn_model.compile(
     loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
@@ -140,7 +154,7 @@ callbacks = [
     keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
 ]
 
-
+# Train the network
 print("[INFO] training head...")
 H = rnn_model.fit(
 	train_data,
@@ -150,17 +164,11 @@ H = rnn_model.fit(
     batch_size=BATCH_SIZE,
 	callbacks=callbacks)
 
-# evaluate the network
-print("[INFO] evaluating network...")
-#predictions = model.predict(x=testX.astype("float32"), batch_size=32)
-#print(classification_report(testY.argmax(axis=1),
-#	predictions.argmax(axis=1), target_names=lb.classes_))
-# plot the training loss and accuracy
-_, accuracy = rnn_model.evaluate(test_data, test_labels)
-print(f"Test accuracy: {round(accuracy * 100, 2)}%")
-print(accuracy)
+# Serialize the model to disk
+print("[INFO] serializing network...")
+rnn_model.save("./models/" + args["name"], save_format="h5")
 
-
+# Plot the training loss and accuracy
 N = EPOCHS
 pltstyle.use("ggplot")
 plt.figure()
@@ -172,9 +180,4 @@ plt.title("Training Loss and Accuracy on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
-plt.savefig("./pictures/" + args["picture"] + ".jpg")
-
-
-# serialize the model to disk
-print("[INFO] serializing network...")
-rnn_model.save("./models/" + args["model"], save_format="h5")
+plt.savefig("./pictures/" + args["name"] + ".jpg")

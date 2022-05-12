@@ -5,5 +5,6 @@
     "woman": "http://www.aslsearch.com/signs/videos/woman.mp4",
     "help": "http://aslbricks.org/New/ASL-Videos/help.mp4",
     "fish": "http://aslbricks.org/New/ASL-Videos/fish.mp4",
-    "dog": "http://aslbricks.org/New/ASL-Videos/dog.mp4" 
+    "dog": "http://aslbricks.org/New/ASL-Videos/dog.mp4",
+    "movie": "https://s3-us-west-1.amazonaws.com/files.startasl.com/asldictionary/movie.mp4"
 }
