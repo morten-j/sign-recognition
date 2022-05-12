@@ -2,6 +2,8 @@ import pickle
 import numpy as np
 import pandas as pd
 import tensorflow.keras
+from tensorflow.keras import Input, Model, callbacks
+from tensorflow.keras.layers import GRU, Dropout, Dense
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
 import argparse 
@@ -106,31 +108,31 @@ else:
 
 
 print("[INFO] building model...")
-frame_features_input = keras.Input((MAX_SEQ_LENGTH, NUM_FEATURES))
-mask_input = keras.Input((MAX_SEQ_LENGTH,), dtype="bool")
+frame_features_input = Input((MAX_SEQ_LENGTH, NUM_FEATURES))
+mask_input = Input((MAX_SEQ_LENGTH,), dtype="bool")
 
 # Refer to the following tutorial to understand the significance of using `mask`:
 # https://keras.io/api/layers/recurrent_layers/gru/
 
 # Create RNN model
-x = keras.layers.GRU(16, return_sequences=True)(frame_features_input, mask=mask_input)
-x = keras.layers.GRU(8)(x)
-x = keras.layers.Dropout(0.6)(x)
-x = keras.layers.Dense(8, activation="relu")(x)
-output = keras.layers.Dense(len(LABELS), activation="softmax")(x)
+x = GRU(16, return_sequences=True)(frame_features_input, mask=mask_input)
+x = GRU(8)(x)
+x = Dropout(0.6)(x)
+x = Dense(8, activation="relu")(x)
+output = Dense(len(LABELS), activation="softmax")(x)
 
-rnn_model = keras.Model([frame_features_input, mask_input], output)
+rnn_model = Model([frame_features_input, mask_input], output)
 
 # Compile the created model
 print("[INFO] compiling model...")
 rnn_model.compile(
     loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
-callbacks = [
-    keras.callbacks.ReduceLROnPlateau(
+callbacksList = [
+    callbacks.ReduceLROnPlateau(
         monitor="loss", factor=0.5, patience=50, min_lr=0.0001
     ),
-    keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
+    callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
 ]
 
 # Train the network
@@ -141,7 +143,7 @@ H = rnn_model.fit(
     validation_split=0.2,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-	callbacks=callbacks)
+	callbacks=callbacksList)
 
 # Serialize the model to disk
 print("[INFO] serializing network...")
