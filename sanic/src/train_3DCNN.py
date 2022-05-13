@@ -103,7 +103,7 @@ print(f"Found {len(train_data)} videos")
 #fixed_labels = to_categorical(train_labels, len(class_vocab))
 
 # Maybe UseFull
-train_data = np.array(train_data)
+# train_data = np.array(train_data)
 #test_data = np.array(test_data)
 
 
@@ -166,7 +166,7 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
 
 def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
-    inputs = keras.Input((frames, width, height, 3))
+    inputs = keras.Input((frames, width, height, 1))
 
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
