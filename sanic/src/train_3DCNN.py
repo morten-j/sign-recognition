@@ -87,7 +87,7 @@ def prepare_all_videos(videopathList):
     # For each video.
     for idx, path in enumerate(videopathList):
         # Gather all its frames and add to a list.
-        video = utils.load_video(path, (IMG_SIZE, IMG_SIZE), True)
+        video = utils.load_video(path, (IMG_SIZE, IMG_SIZE))
         videos.append(video)
         
     return videos
@@ -166,7 +166,7 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
 
 def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
-    inputs = Input((frames, width, height, 1))
+    inputs = Input((frames, width, height, 3))
 
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
