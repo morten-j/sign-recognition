@@ -199,7 +199,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
 def get_the_best_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=1):
 
-    inputs = keras.Input(shape=(frames, width, height, depth))
+    inputs = Input(shape=(frames, width, height, depth))
 
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
@@ -219,7 +219,7 @@ def get_the_best_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, d
 
     outputs = Dense(units=len(LABELS), activation="softmax")(x)
 
-    model = keras.Model(inputs, outputs, name="3DCNN_BEST")
+    model = Model(inputs, outputs, name="3DCNN_BEST")
 
     return model
 
