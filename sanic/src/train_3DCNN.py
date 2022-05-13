@@ -90,7 +90,7 @@ def prepare_all_videos(videopathList):
         video = utils.load_video(path, (IMG_SIZE, IMG_SIZE))
         videos.append(video)
         
-    return videos
+    return np.array(videos)
 
 lb = LabelBinarizer()
 train_labels = lb.fit_transform(labels)
@@ -247,7 +247,7 @@ callbacksList = [
 
 print("[INFO] training model...")
 H = model.fit(
-	(train_data),
+	train_data,
     train_labels,
     validation_split=0.2,
 	epochs=EPOCHS,
