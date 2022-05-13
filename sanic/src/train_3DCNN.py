@@ -90,7 +90,7 @@ def prepare_all_videos(videopathList):
         video = utils.load_video(path=path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=True, shouldShow=False)
         videos.append(video)
         
-    return np.array(videos)
+    return videos
 
 lb = LabelBinarizer()
 train_labels = lb.fit_transform(labels)
