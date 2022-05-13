@@ -3,7 +3,7 @@ from multiprocessing import pool
 import pickle
 import numpy as np
 import pandas as pd
-import keras
+from keras import Input, Model, callbacks
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
 import argparse
@@ -166,7 +166,7 @@ def get_model2(frames=None, width=IMG_SIZE, height=IMG_SIZE):
 
 def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
-    inputs = keras.Input((frames, width, height, 1))
+    inputs = Input((frames, width, height, 1))
 
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
@@ -191,7 +191,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
     x = Flatten()(x)
     outputs = Dense(units=len(LABELS), activation="softmax")(x)
 
-    model = keras.Model(inputs, outputs, name="3DCNN_3")
+    model = Model(inputs, outputs, name="3DCNN_3")
 
 
     return model
@@ -238,11 +238,11 @@ print("[INFO] compiling model...")
 model.compile(
     loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
-callbacks = [
-    keras.callbacks.ReduceLROnPlateau(
+callbacksList = [
+    callbacks.ReduceLROnPlateau(
         monitor="loss", factor=0.5, patience=50, min_lr=0.0001
     ),
-    keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=50, verbose=1),
+    callbacks.EarlyStopping(monitor="val_accuracy", patience=50, verbose=1),
 ]
 
 
@@ -253,7 +253,7 @@ H = model.fit(
     validation_split=0.2,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-	callbacks=callbacks)
+	callbacks=callbacksList)
 
 
 # serialize the model to disk

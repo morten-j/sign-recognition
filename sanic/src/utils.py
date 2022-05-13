@@ -5,7 +5,7 @@ import numpy as np
 import keras
 import tensorflow as tf
 
-IMG_SIZE = 224
+IMG_SIZE = 128
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
 
@@ -99,7 +99,7 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, 
                 for i in range(len(frames), MAX_SEQ_LENGTH):
                     frames.append(pad_frame)
                 break
-            #frame = crop_center_square(frame)
+            frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
 
             if convertToBlackAndWhite:
