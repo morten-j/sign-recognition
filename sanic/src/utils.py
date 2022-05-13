@@ -1,140 +1,69 @@
-import json
 import os
-import cv2
+import tensorflow
+import matplotlib.pyplot as plt
+import matplotlib.style as pltstyle
 import numpy as np
-import keras
-import tensorflow as tf
 
-IMG_SIZE = 128
+IMG_SIZE = 64
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
 
-pad_frame = np.zeros(shape=(IMG_SIZE,IMG_SIZE,3), dtype="int32")
 
-def get_partitions_and_labels():
-    file_path = 'dataset.json'
-
-    with open(file_path) as ipf:
-        content = json.load(ipf)
-
-    classes = []
-    labels = dict()
-    partition = dict()
-    partition['train'] = []
-    partition['validation'] = []
-    partition['split'] = dict()
-
-    for entry in content:
-        gloss = entry['gloss']
-        classes.append(gloss)
-
-        for instance in entry['instances']:
-            split = instance['split']
-            video_id = instance['video_id']
-            
-            if not os.path.exists("./video/" + video_id + ".mp4"):
-                continue
-
-            partition['split'][video_id] = (instance['frame_start'], instance['frame_end'])
-            labels[video_id] = gloss
-
-            if split == 'train':
-                partition['train'].append(video_id)
-            elif split == 'val':
-                partition['validation'].append(video_id)
-            elif split == 'test':
-                partition['validation'].append(video_id)
-            else:
-                raise ValueError("Invalid split.")
-
-    return partition, labels, classes
-
-def get_data_frame_dicts():
-    file_path = 'dataset.json'
-
-    with open(file_path) as ipf:
-        content = json.load(ipf)
-    
-    train_dictionary = {"id": [], "label": []}
-    test_dictionary = {"id": [], "label": []}
-    for entry in content:
-        gloss = entry['gloss']
-
-        for instance in entry['instances']:
-            split = instance['split']
-            video_id = instance['video_id']
-            
-            if not os.path.exists("./video/" + video_id + ".mp4"):
-                continue
-
-            if split == 'train':
-                train_dictionary['id'].append(video_id)
-                train_dictionary['label'].append(gloss)
-            elif split == 'val':
-                train_dictionary['id'].append(video_id)
-                train_dictionary['label'].append(gloss)
-            elif split == 'test':
-                test_dictionary['id'].append(video_id)
-                test_dictionary['label'].append(gloss)
-            else:
-                raise ValueError("Invalid split.")
-
-    return train_dictionary, test_dictionary
-
-def crop_center_square(frame):
-    y, x = frame.shape[0:2]
-    min_dim = min(y, x)
-    start_x = (x // 2) - (min_dim // 2)
-    start_y = (y // 2) - (min_dim // 2)
-    return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
+def plot_training(his, metric, name):
+    pltstyle.use("ggplot")
+    train_metrics = his.history[metric]
+    val_metrics = his.history['val_'+metric]
+    epochs = range(1, len(train_metrics) + 1)
+    plt.figure()
+    plt.plot(epochs, train_metrics)
+    plt.plot(epochs, val_metrics)
+    plt.title('Training and validation '+ metric)
+    plt.xlabel("Epochs")
+    plt.ylabel(metric)
+    plt.legend(["train_"+metric, 'val_'+metric])
+    plt.show()
+    plt.savefig("./pictures/" + name + ".jpg")
 
 
-def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, shouldShow=False):
-    cap = cv2.VideoCapture(path)
-    frames = []
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret: # Pad data
-                for i in range(len(frames), MAX_SEQ_LENGTH):
-                    frames.append(pad_frame)
-                break
-            frame = crop_center_square(frame)
-            frame = cv2.resize(frame, resize)
+def getListOfFiles(dirName):
+    # create a list of file and sub directories 
+    listOfFile = os.listdir(dirName)
+    allFiles = list()
+    for entry in listOfFile:
+        # Create full path for video
+        fullPath = os.path.join(dirName, entry)
+        # If entry is a directory then get the list of files in this directory 
+        if os.path.isdir(fullPath):
+            allFiles = allFiles + getListOfFiles(fullPath)
+        elif entry.lower().endswith(".mp4"):
+            allFiles.append(fullPath)
+                
+    return allFiles
 
-            if convertToBlackAndWhite:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-               
-            #else:
-                #frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
+def getListOfLabels(videoPathList, labels):
+    allLabels = list()
 
-             # displaying the video
-            if shouldShow:
-                cv2.imshow("Live", frame)
-                cv2.waitKey(30)
-            
-            frames.append(frame)
+    for path in videoPathList:
+        # Extract name of folder (which is the label)
+        label = path.split(os.path.sep)[-2]
+        if label not in labels:
+            continue
+        allLabels.append(label)
 
-
-            if len(frames) == MAX_SEQ_LENGTH:
-                break
-    finally:
-        cap.release()
-    frames = frames[:MAX_SEQ_LENGTH]
-    return frames
+    return allLabels
 
 
-def build_feature_extractor():
-    feature_extractor = tf.keras.applications.InceptionV3(
+def build_feature_extractor(shape=(IMG_SIZE, IMG_SIZE, 3)):
+    feature_extractor = tensorflow.keras.applications.InceptionV3(
         weights="imagenet",
         include_top=False,
         pooling="avg",
-        input_shape=(IMG_SIZE, IMG_SIZE, 3),
+        input_shape=(shape),
     )
 
-    preprocess_input = keras.applications.inception_v3.preprocess_input
+    preprocess_input = tensorflow.keras.applications.inception_v3.preprocess_input
 
-    inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
+    inputs = tensorflow.keras.Input(shape)
     preprocessed = preprocess_input(inputs)
 
     outputs = feature_extractor(preprocessed)
@@ -142,11 +71,11 @@ def build_feature_extractor():
     for layer in feature_extractor.layers:
         layer.trainable = False
 
-    return keras.Model(inputs, outputs, name="feature_extractor")
+    return tensorflow.keras.Model(inputs, outputs, name="feature_extractor")
 
 
 def load_model(path):
     if os.path.exists(path):
-        return keras.models.load_model(path)
+        return tensorflow.keras.models.load_model(path)
     else:
         return "this is cringe" 

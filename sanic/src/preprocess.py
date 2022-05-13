@@ -1,129 +1,51 @@
-# preprocessing script for WLASL dataset
-# 1. Convert .swf, .mkv file to mp4.
-# 2. Extract YouTube frames and create video instances.
-
-import os
-import json
 import cv2
+import numpy as np
 
-import shutil
-
-def convert_everything_to_mp4():
-    cmd = 'bash scripts/swf2mp4.sh'
-
-    os.system(cmd)
-
-
-def video_to_frames(video_path, size=None):
-    """
-    video_path -> str, path to video.
-    size -> (int, int), width, height.
-    """
-
-    cap = cv2.VideoCapture(video_path)
-
-    frames = []
-    
-    while True:
-        ret, frame = cap.read()
-    
-        if ret:
-            if size:
-                frame = cv2.resize(frame, size)
-            frames.append(frame)
-        else:
-            break
-
-    cap.release()
-
-    return frames
-
-
-def convert_frames_to_video(frame_array, path_out, size, fps=25):
-    out = cv2.VideoWriter(path_out, cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
-
-    for i in range(len(frame_array)):
-        # writing to a image array
-        out.write(frame_array[i])
-    out.release()
-
-
-def extract_frame_as_video(src_video_path, start_frame, end_frame):
-    frames = video_to_frames(src_video_path)
-
-    return frames[start_frame: end_frame+1]
-
-
-def extract_all_yt_instances(content):
-    cnt = 1
-
-    if not os.path.exists('videos'):
-        os.mkdir('videos')
-
-    for entry in content:
-        instances = entry['instances']
-
-        for inst in instances:
-            url = inst['url']
-            video_id = inst['video_id']
-
-            if 'youtube' in url or 'youtu.be' in url:
-                cnt += 1
-                
-                yt_identifier = url[-11:]
-
-                src_video_path = os.path.join('raw_videos_mp4', yt_identifier + '.mp4')
-                dst_video_path = os.path.join('videos', video_id + '.mp4')
-
-                if not os.path.exists(src_video_path):
-                    continue
-
-                if os.path.exists(dst_video_path):
-                    print('{} exists.'.format(dst_video_path))
-                    continue
-
-                # because the JSON file indexes from 1.
-                start_frame = inst['frame_start'] - 1
-                end_frame = inst['frame_end'] - 1
-
-                if end_frame <= 0:
-                    shutil.copyfile(src_video_path, dst_video_path)
-                    continue
-
-                selected_frames = extract_frame_as_video(src_video_path, start_frame, end_frame)
-                
-                # when OpenCV reads an image, it returns size in (h, w, c)
-                # when OpenCV creates a writer, it requres size in (w, h).
-                size = selected_frames[0].shape[:2][::-1]
-                
-                convert_frames_to_video(selected_frames, dst_video_path, size)
-
-                print(cnt, dst_video_path)
-            else:
-                cnt += 1
-
-                src_video_path = os.path.join('raw_videos_mp4', video_id + '.mp4')
-                dst_video_path = os.path.join('videos', video_id + '.mp4')
-
-                if os.path.exists(dst_video_path):
-                    print('{} exists.'.format(dst_video_path))
-                    continue
-
-                if not os.path.exists(src_video_path):
-                    continue
-
-                print(cnt, dst_video_path)
-                shutil.copyfile(src_video_path, dst_video_path)
-
+# Given a list of paths to video return a list of these video preprocessed
+def prepare_all_videos(videopathList, resize):
+    videos = []
+    # For each video.
+    for idx, path in enumerate(videopathList):
+        # Gather all its frames and add to a list.
+        video = load_video(path=path, resize=resize)
+        videos.append(video)
         
-def main():
-    # 1. Convert .swf, .mkv file to mp4.
-    convert_everything_to_mp4()
-
-    content = json.load(open('dataset.json'))
-    extract_all_yt_instances(content)
+    return np.array(videos)
 
 
-if __name__ == "__main__":
-    main()
+# Crop video to be smaller and focus on center, since most "action" is there
+def crop_center_square(frame):
+    y, x = frame.shape[0:2]
+    min_dim = min(y, x)
+    start_x = (x // 2) - (min_dim // 2)
+    start_y = (y // 2) - (min_dim // 2)
+    return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
 
+# Load a video and resize and turn it black and white
+def load_video(path, resize, convertToBlackAndWhite=True, shouldShow=False, maxLength=72):
+    cap = cv2.VideoCapture(path)
+    frames = []
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            frame = crop_center_square(frame)
+            frame = cv2.resize(frame, resize)
+
+            if convertToBlackAndWhite:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+               
+             # displaying the video
+            if shouldShow:
+                cv2.imshow("Live", frame)
+                cv2.waitKey(30)
+            
+            frames.append(frame)
+
+            if len(frames) == maxLength:
+                break
+    finally:
+        cap.release()
+    return frames
