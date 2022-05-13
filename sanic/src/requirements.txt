@@ -11,3 +11,4 @@ mediapipe
 more_itertools
 argparse
 youtube-dl
+sklearn

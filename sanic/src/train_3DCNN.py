@@ -35,7 +35,7 @@ ap.add_argument("-b", "--batch", required=True,
 	help="what batch size should be used")
 args = vars(ap.parse_args())
 
-IMG_SIZE = 128
+IMG_SIZE = 64
 BATCH_SIZE = int(args["batch"])
 MAX_SEQ_LENGTH = 72
 EPOCHS = int(args["epoch"])
@@ -87,7 +87,7 @@ def prepare_all_videos(videopathList):
     # For each video.
     for idx, path in enumerate(videopathList):
         # Gather all its frames and add to a list.
-        video = utils.load_video(path, (IMG_SIZE, IMG_SIZE), True)
+        video = utils.load_video(path=path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=True, shouldShow=False)
         videos.append(video)
         
     return videos
@@ -97,13 +97,15 @@ train_labels = lb.fit_transform(labels)
 
 train_data = prepare_all_videos(videopaths)
 
+print(np.shape(train_data))
+
 print(f"Found {len(train_data)} videos")
 
 # Maybe useful
 #fixed_labels = to_categorical(train_labels, len(class_vocab))
 
 # Maybe UseFull
-train_data = np.array(train_data)
+#train_data = np.array(train_data)
 #test_data = np.array(test_data)
 
 
@@ -197,6 +199,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
     return model
 
 def get_the_best_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=1):
+
     inputs = keras.Input(shape=(frames, width, height, depth))
 
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
@@ -204,20 +207,22 @@ def get_the_best_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, d
     x = Conv3D(filters=16, kernel_size=3, activation="relu")(x)
     x = BatchNormalization()(x)
 
-    x = Conv3D(filters=32, kernel_size=3, actiation="relu")(x)
+    x = Conv3D(filters=32, kernel_size=3, activation="relu")(x)
     x = BatchNormalization()(x)
 
-    x = Conv3D(filters=64, kernel_size=3, actiation="relu")(x)
+    x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
 
-    x = Dense(units=512, activation="relu")(x)
+    x = Dense(units=128, activation="relu")(x)
     x = Dropout(0.4)(x)
+    x = Flatten()(x)
+
     outputs = Dense(units=len(LABELS), activation="softmax")(x)
 
     model = keras.Model(inputs, outputs, name="3DCNN_BEST")
 
-    return model;
+    return model
 
 # Match/Switch is only available from python 3.10
 if args["model"] == '1':

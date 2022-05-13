@@ -5,7 +5,7 @@ import numpy as np
 import keras
 import tensorflow as tf
 
-IMG_SIZE = 224
+IMG_SIZE = 128
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
 
@@ -99,18 +99,20 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, 
                 for i in range(len(frames), MAX_SEQ_LENGTH):
                     frames.append(pad_frame)
                 break
-            #frame = crop_center_square(frame)
+            frame = crop_center_square(frame)
             frame = cv2.resize(frame, resize)
 
             if convertToBlackAndWhite:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            else:
-                frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
+               
+            #else:
+                #frame = frame[:, :, [2, 1, 0]] # Converts frame from BGR to RGB
 
              # displaying the video
             if shouldShow:
                 cv2.imshow("Live", frame)
-
+                cv2.waitKey(30)
+            
             frames.append(frame)
 
 
@@ -119,7 +121,7 @@ def load_video(path, resize=(IMG_SIZE, IMG_SIZE), convertToBlackAndWhite=False, 
     finally:
         cap.release()
     frames = frames[:MAX_SEQ_LENGTH]
-    return np.array(frames)
+    return frames
 
 
 def build_feature_extractor():
