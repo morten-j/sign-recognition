@@ -168,8 +168,7 @@ def get_model3(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE):
 
     inputs = Input((frames, width, height, 3))
 
-    x = MaxPooling3D(pool_size=(2,2,2), padding='same')(inputs)
-    x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
+    x = Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
 
