@@ -247,7 +247,7 @@ callbacksList = [
 
 print("[INFO] training model...")
 H = model.fit(
-	[train_data],
+	(train_data),
     train_labels,
     validation_split=0.2,
 	epochs=EPOCHS,
