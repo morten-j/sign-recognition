@@ -1,5 +1,5 @@
 import os
-import tensorflow
+import keras
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
 import numpy as np
@@ -54,16 +54,16 @@ def getListOfLabels(videoPathList, labels):
 
 
 def build_feature_extractor(shape=(IMG_SIZE, IMG_SIZE, 3)):
-    feature_extractor = tensorflow.keras.applications.InceptionV3(
+    feature_extractor = keras.applications.InceptionV3(
         weights="imagenet",
         include_top=False,
         pooling="avg",
         input_shape=(shape),
     )
 
-    preprocess_input = tensorflow.keras.applications.inception_v3.preprocess_input
+    preprocess_input = keras.applications.inception_v3.preprocess_input
 
-    inputs = tensorflow.keras.Input(shape)
+    inputs = keras.Input(shape)
     preprocessed = preprocess_input(inputs)
 
     outputs = feature_extractor(preprocessed)
@@ -71,11 +71,11 @@ def build_feature_extractor(shape=(IMG_SIZE, IMG_SIZE, 3)):
     for layer in feature_extractor.layers:
         layer.trainable = False
 
-    return tensorflow.keras.Model(inputs, outputs, name="feature_extractor")
+    return keras.Model(inputs, outputs, name="feature_extractor")
 
 
 def load_model(path):
     if os.path.exists(path):
-        return tensorflow.keras.models.load_model(path)
+        return keras.models.load_model(path)
     else:
         return "this is cringe" 

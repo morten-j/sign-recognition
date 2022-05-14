@@ -8,11 +8,14 @@ import feature_extraction as fe
 import tempfile
 import os
 import utils
+import preprocess
 
-model = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
-feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+IMG_SIZE = 64
 
-SIGN_LIST = ['book', 'dog', 'fish', 'help', 'man', 'movie', 'pizza', 'woman'] #TODO Check om rækkefølgen stadig passer med ny model
+model = utils.load_model(os.path.join("models", "testing")) #TODO fix whhen there is a model
+#feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+
+SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"] #TODO Check om rækkefølgen stadig passer med ny model
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -129,7 +132,7 @@ async def predict_video(request: Request) -> HTTPResponse:
 
     with tempfile.NamedTemporaryFile() as temp:
         temp.write(videofile.body) # write the video into a temporary file
-        video = np.array(utils.load_video(temp.name))
+        video = np.array(preprocess.load_video(temp.name, resize=(IMG_SIZE, IMG_SIZE)))
 
      # Expand dims size the model expects a list of videos and not just a video
     fixed_size = np.expand_dims(video, axis=0)
@@ -141,15 +144,17 @@ async def predict_video(request: Request) -> HTTPResponse:
     # Create object to be returned
     returnObject = dict()
     returnObject["prediction"] = SIGN_LIST[max_value_index]
+    returnObject["list"] = prediction.tolist()[0]
 
+    print(returnObject)
     # Nested list. First element, because it is only 1 video (and can accept multiple)
-    all_predictions = prediction.tolist()[0]
-    prediction_objects = []
+    #all_predictions = prediction.tolist()[0]
+    #prediction_objects = []
 
     # Combining predictions (floats) with their sign. Otherwise a duplicate SIGN_LIST would be needed on frontend
-    for index, sign in enumerate(SIGN_LIST):
-        prediction_objects.append({ all_predictions[index], sign })
+    #for index, sign in enumerate(SIGN_LIST):
+    #    prediction_objects.append({ sign, all_predictions[index] })
 
-    returnObject["predictionObjects"] = prediction_objects
+    #returnObject["predictionObjects"] = prediction_objects
 
     return json(returnObject, 200)

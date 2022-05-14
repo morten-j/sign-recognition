@@ -1,5 +1,5 @@
 import numpy as np
-from tensorflow.keras import callbacks
+from keras import callbacks
 from sklearn.preprocessing import LabelBinarizer
 import os
 import argparse
@@ -24,7 +24,7 @@ MAX_SEQ_LENGTH = 72
 BLACK_AND_WHITE = 1
 RBG = 3
 EPOCHS = args["epoch"]
-LABELS = set(["book", "dog", "woman", "movie", "help", "fish", "man", "pizza"])
+LABELS = set(["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"])
 
 
 print("[INFO] preparing dataset")
@@ -34,7 +34,6 @@ training_labels = utils.getListOfLabels(train_videopaths, LABELS)
 
 test_videopaths = utils.getListOfFiles(os.path.join("./dataset", "test"))
 testing_labels = utils.getListOfLabels(test_videopaths, LABELS)
-
 
 # Convert labels to: [0,0,0,0,1,0,0,0] format
 lb = LabelBinarizer()
@@ -54,6 +53,12 @@ if args["model"] == 'big':
     model = models.get_model_big(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 elif args["model"] == "best":
     model = models.get_the_best_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
+elif args["model"] == "reformed":
+    model = models.get_reformed_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
+elif args["model"] == "yoink":
+    model = models.get_yoinked_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
+elif args["model"] == "base":
+    model = models.get_baseline_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 else:
     print("[WARNING] no valid model was choosen!")
     exit(0)
@@ -67,9 +72,9 @@ model.compile(
 
 callbacksList = [
     callbacks.ReduceLROnPlateau(
-        monitor="loss", factor=0.5, patience=10, min_lr=0.0001
+        monitor="accuracy", factor=0.5, patience=10, min_lr=0.0001
     ),
-    callbacks.EarlyStopping(monitor="val_accuracy", patience=70, verbose=1),
+    callbacks.EarlyStopping(monitor="val_accuracy", patience=10, verbose=1),
 ]
 
 print("[INFO] training model...")
