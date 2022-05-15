@@ -10,12 +10,11 @@ import os
 import utils
 import preprocess
 
-IMG_SIZE = 64
+IMG_SIZE = 112
 
-model = utils.load_model(os.path.join("models", "testing")) #TODO fix whhen there is a model
-#feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+model = utils.load_model(os.path.join("models", "baseline_normilizationV2_bigger_img_size"))
 
-SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"] #TODO Check om rækkefølgen stadig passer med ny model
+SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"]
 
 app = Sanic("MortenIsCringeApp")
 app.config.CORS_ORIGINS = "*"
@@ -146,15 +145,14 @@ async def predict_video(request: Request) -> HTTPResponse:
     returnObject["prediction"] = SIGN_LIST[max_value_index]
     returnObject["list"] = prediction.tolist()[0]
 
-    print(returnObject)
     # Nested list. First element, because it is only 1 video (and can accept multiple)
-    #all_predictions = prediction.tolist()[0]
-    #prediction_objects = []
+    all_predictions = prediction.tolist()[0]
+    prediction_objects = []
 
     # Combining predictions (floats) with their sign. Otherwise a duplicate SIGN_LIST would be needed on frontend
-    #for index, sign in enumerate(SIGN_LIST):
-    #    prediction_objects.append({ sign, all_predictions[index] })
+    for index, sign in enumerate(SIGN_LIST):
+        prediction_objects.append({ sign : all_predictions[index] })
 
-    #returnObject["predictionObjects"] = prediction_objects
+    returnObject["allPredictions"] = prediction_objects
 
     return json(returnObject, 200)

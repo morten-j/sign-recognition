@@ -18,7 +18,7 @@ ap.add_argument("-b", "--batch", type=int, required=True,
 	help="what batch size should be used")
 args = vars(ap.parse_args())
 
-IMG_SIZE = 64
+IMG_SIZE = 154
 BATCH_SIZE = args["batch"]
 MAX_SEQ_LENGTH = 72
 BLACK_AND_WHITE = 1
@@ -59,6 +59,8 @@ elif args["model"] == "yoink":
     model = models.get_yoinked_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 elif args["model"] == "base":
     model = models.get_baseline_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
+elif args["model"] == "mod":
+    model = models.get_baseline_mod_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 else:
     print("[WARNING] no valid model was choosen!")
     exit(0)
@@ -72,9 +74,9 @@ model.compile(
 
 callbacksList = [
     callbacks.ReduceLROnPlateau(
-        monitor="accuracy", factor=0.5, patience=10, min_lr=0.0001
+        monitor="accuracy", factor=0.5, patience=5, min_lr=0.0001
     ),
-    callbacks.EarlyStopping(monitor="val_accuracy", patience=10, verbose=1),
+    callbacks.EarlyStopping(monitor="val_accuracy", patience=7, verbose=1),
 ]
 
 print("[INFO] training model...")
@@ -82,9 +84,11 @@ H = model.fit(
 	train_data,
     train_labels,
     validation_split=0.2,
+    shuffle=True,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-	callbacks=callbacksList)
+	callbacks=callbacksList
+    )
 
 
 # serialize the model to disk
