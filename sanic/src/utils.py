@@ -2,9 +2,9 @@ import os
 import keras
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
-import numpy as np
+import train_3DCNN
 
-IMG_SIZE = 64
+IMG_SIZE = train_3DCNN.IMG_SIZE
 BATCH_SIZE = 32
 MAX_SEQ_LENGTH = 72
 

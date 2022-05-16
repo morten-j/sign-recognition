@@ -3,12 +3,10 @@ tensorflow-gpu
 numpy
 matplotlib
 pyqt5
-pandas
 opencv-python
 imageio
 imutils
 mediapipe
 more_itertools
 argparse
-youtube-dl
 sklearn

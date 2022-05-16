@@ -1,4 +1,3 @@
-import numpy as np
 from keras import callbacks
 from sklearn.preprocessing import LabelBinarizer
 import os
@@ -18,7 +17,7 @@ ap.add_argument("-b", "--batch", type=int, required=True,
 	help="what batch size should be used")
 args = vars(ap.parse_args())
 
-IMG_SIZE = 154
+IMG_SIZE = 64
 BATCH_SIZE = args["batch"]
 MAX_SEQ_LENGTH = 72
 BLACK_AND_WHITE = 1
@@ -28,7 +27,6 @@ LABELS = set(["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"])
 
 
 print("[INFO] preparing dataset")
-
 train_videopaths = utils.getListOfFiles(os.path.join("./dataset", "train"))
 training_labels = utils.getListOfLabels(train_videopaths, LABELS)
 
@@ -40,6 +38,7 @@ lb = LabelBinarizer()
 train_labels = lb.fit_transform(training_labels)
 test_labels = lb.fit_transform(testing_labels)
 
+# Load training and test dataset videos
 train_data = preprocess.prepare_all_videos(train_videopaths, resize=(IMG_SIZE, IMG_SIZE))
 test_data = preprocess.prepare_all_videos(test_videopaths, resize=(IMG_SIZE, IMG_SIZE))
 
@@ -65,17 +64,19 @@ else:
     print("[WARNING] no valid model was choosen!")
     exit(0)
 
+#Print summary of used model to CLI
 model.summary()
-
 
 print("[INFO] compiling model...")
 model.compile(
     loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
 callbacksList = [
+    # Reduce learning rate if accuracy does not improve in patience epochs
     callbacks.ReduceLROnPlateau(
         monitor="accuracy", factor=0.5, patience=5, min_lr=0.0001
     ),
+    # Stop early if model does not improve "val_accuracy" for patience epochs
     callbacks.EarlyStopping(monitor="val_accuracy", patience=7, verbose=1),
 ]
 
@@ -90,7 +91,6 @@ H = model.fit(
 	callbacks=callbacksList
     )
 
-
 # serialize the model to disk
 print("[INFO] serializing network...")
 model.save("./models/" + args["name"], save_format="h5")
@@ -100,5 +100,5 @@ _, accuracy = model.evaluate(test_data, test_labels)
 print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 
 print("[INFO] plotting training of network...")
-# Plot the training loss and accuracy
+# Plot and save the training and validation loss graph
 utils.plot_training(H, "loss", args["name"])

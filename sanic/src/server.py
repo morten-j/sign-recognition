@@ -10,9 +10,10 @@ import os
 import utils
 import preprocess
 
-IMG_SIZE = 112
 
-model = utils.load_model(os.path.join("models", "baseline_normilizationV2_bigger_img_size"))
+IMG_SIZE = 64
+
+model = utils.load_model(os.path.join("models", "baseline"))
 
 SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"]
 
