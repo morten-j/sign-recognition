@@ -1,7 +1,5 @@
-from tkinter import X
 from keras import Input, Model
 from keras.layers import Dense, Conv3D, Dropout, GlobalAveragePooling3D, MaxPooling3D, BatchNormalization, AveragePooling3D, Flatten
-
 
 
 def get_model_big(frames, width, height, depth, classes):
@@ -27,7 +25,7 @@ def get_model_big(frames, width, height, depth, classes):
     x = BatchNormalization()(x)
 
     x = Dense(units=256, activation="relu")(x)
-    x = Dropout(0.7)(x)
+    x = Dropout(0.5)(x)
     x = Flatten()(x)
     outputs = Dense(units=classes, activation="softmax")(x)
 
