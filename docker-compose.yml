@@ -17,5 +17,14 @@ services:
       - 8000:8000
     networks:
       - net
+  openpose:
+    profiles:
+      - openpose
+    build: ./openpose
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
 networks:
    net:
