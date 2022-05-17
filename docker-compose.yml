@@ -21,6 +21,8 @@ services:
     profiles:
       - openpose
     build: ./openpose
+    volumes:
+      - ./openpose/sign-language-recognition-service:/sign-language-regocnition-service
     deploy:
       resources:
         reservations:
