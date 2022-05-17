@@ -21,6 +21,8 @@ services:
     profiles:
       - openpose
     build: ./openpose
+    ports:
+      - 5000:5000
     deploy:
       resources:
         reservations:
