@@ -1,5 +1,5 @@
 # Largely inspired from https://github.com/CMU-Perceptual-Computing-Lab/openpose/issues/833#issuecomment-893304985
-FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn8-devel-ubuntu16.04
 
 RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub && \
     apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub
@@ -33,7 +33,7 @@ RUN mkdir build
 WORKDIR /openpose/build
 
 #RUN cmake -DPYBIND11_INSTALL=ON -DUSE_PYTHON_INCLUDE_DIR=ON -DGPU_MODE=CUDA -DUSE_CUDNN=ON -DBUILD_PYTHON=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 ..
-RUN cmake -G "Unix Makefiles" -DBUILD_PYTHON=ON DCUDA_cublas_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libcublas.so ..
+RUN cmake -DBUILD_PYTHON=ON ..
 RUN make -j`nproc`
 
 # Install openpose to python
