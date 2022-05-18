@@ -17,3 +17,7 @@ After docker compose has finished, nextjs should run on <http://localhost> and s
 ## Docs
 
 You can access docs for the api at <http://localhost:8080/docs> or <http://localhost:8080/docs/swagger> for swaggerUI
+
+## 2021 Bachelor Group  
+
+If you want to be use the 2021 bachelor groups service then run `docker compose --profile openpose up -d`  

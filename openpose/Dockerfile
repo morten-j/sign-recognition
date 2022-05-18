@@ -53,10 +53,11 @@ RUN make install
 RUN export PYTHONPATH=/usr/local/python/openpose:$PYTHONPATH
 
 # Install old bachelor project
-# WORKDIR /
-# RUN git clone https://github.com/martinloenne/sign-language-recognition-service
-# WORKDIR /sign-language-recognition-service
-# RUN pip3 install -r requirements.txt
+WORKDIR /
+RUN git clone https://github.com/martinloenne/sign-language-recognition-service
+WORKDIR /sign-language-recognition-service
+COPY ./overrides/ .
+RUN pip3 install -r requirements.txt
 
 # Run the container forever
-CMD tail -f /dev/null
+CMD python3 app.py
