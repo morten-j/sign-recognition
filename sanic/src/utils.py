@@ -2,27 +2,22 @@ import os
 import keras
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
-import train_3DCNN
 
-IMG_SIZE = train_3DCNN.IMG_SIZE
-BATCH_SIZE = 32
-MAX_SEQ_LENGTH = 72
-
-
-def plot_training(his, metric, name):
+def plot_training_acc_loss(his, name):
     pltstyle.use("ggplot")
-    train_metrics = his.history[metric]
-    val_metrics = his.history['val_'+metric]
-    epochs = range(1, len(train_metrics) + 1)
+    train_acc = his.history["accuracy"]
+    train_loss = his.history["loss"]
+    epochs = range(1, len(train_acc) + 1)
     plt.figure()
-    plt.plot(epochs, train_metrics)
-    plt.plot(epochs, val_metrics)
-    plt.title('Training and validation '+ metric)
+    plt.plot(epochs, train_acc)
+    plt.plot(epochs, train_loss)
+    plt.title("Training Accuracy and Loss")
     plt.xlabel("Epochs")
-    plt.ylabel(metric)
-    plt.legend(["train_"+metric, 'val_'+metric])
-    plt.show()
+    plt.ylabel("Value")
+    plt.legend(["train_acc", "train_loss"])
     plt.savefig("./pictures/" + name + ".jpg")
+    plt.show()
+    
 
 
 def getListOfFiles(dirName):
@@ -51,27 +46,6 @@ def getListOfLabels(videoPathList, labels):
         allLabels.append(label)
 
     return allLabels
-
-
-def build_feature_extractor(shape=(IMG_SIZE, IMG_SIZE, 3)):
-    feature_extractor = keras.applications.InceptionV3(
-        weights="imagenet",
-        include_top=False,
-        pooling="avg",
-        input_shape=(shape),
-    )
-
-    preprocess_input = keras.applications.inception_v3.preprocess_input
-
-    inputs = keras.Input(shape)
-    preprocessed = preprocess_input(inputs)
-
-    outputs = feature_extractor(preprocessed)
-
-    for layer in feature_extractor.layers:
-        layer.trainable = False
-
-    return keras.Model(inputs, outputs, name="feature_extractor")
 
 
 def load_model(path):

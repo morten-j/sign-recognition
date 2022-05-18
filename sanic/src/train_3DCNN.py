@@ -5,6 +5,8 @@ import argparse
 import utils
 import preprocess
 import models
+import time
+from datetime import timedelta
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--name", required=True,
@@ -58,8 +60,8 @@ elif args["model"] == "yoink":
     model = models.get_yoinked_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 elif args["model"] == "base":
     model = models.get_baseline_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
-elif args["model"] == "mod":
-    model = models.get_baseline_mod_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
+elif args["model"] == "exp":
+    model = models.get_experiment_model(frames=MAX_SEQ_LENGTH, width=IMG_SIZE, height=IMG_SIZE, depth=BLACK_AND_WHITE, classes=len(LABELS))
 else:
     print("[WARNING] no valid model was choosen!")
     exit(0)
@@ -77,19 +79,22 @@ callbacksList = [
         monitor="accuracy", factor=0.5, patience=5, min_lr=0.0001
     ),
     # Stop early if model does not improve "val_accuracy" for patience epochs
-    callbacks.EarlyStopping(monitor="val_accuracy", patience=7, verbose=1),
+    callbacks.EarlyStopping(monitor="val_accuracy", patience=25, verbose=1),
 ]
 
 print("[INFO] training model...")
+start_time = time.monotonic()
 H = model.fit(
 	train_data,
     train_labels,
     validation_split=0.2,
-    shuffle=True,
 	epochs=EPOCHS,
     batch_size=BATCH_SIZE,
 	callbacks=callbacksList
     )
+end_time = time.monotonic()
+print("[INFO] training took:")
+print(timedelta(seconds=end_time - start_time))
 
 # serialize the model to disk
 print("[INFO] serializing network...")
@@ -101,4 +106,4 @@ print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 
 print("[INFO] plotting training of network...")
 # Plot and save the training and validation loss graph
-utils.plot_training(H, "loss", args["name"])
+utils.plot_training_acc_loss(H, args["name"])

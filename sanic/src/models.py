@@ -121,18 +121,18 @@ def get_baseline_model(frames, width, height, depth, classes):
     x = Conv3D(filters=8, kernel_size=3, activation="relu")(inputs)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.4)(x)
+    x = Dropout(0.3)(x)
 
     x = Conv3D(filters=16, kernel_size=3, activation="relu")(x)
     x = Conv3D(filters=16, kernel_size=3, activation="relu")(x)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.3)(x)
 
     x = Conv3D(filters=32, kernel_size=3, activation="relu")(x)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)    
-    x = Dropout(0.4)(x)
+    x = Dropout(0.3)(x)
 
     x = Dense(units=64, activation="relu")(x)
     x = Flatten()(x)
@@ -144,32 +144,29 @@ def get_baseline_model(frames, width, height, depth, classes):
 
     return model
 
-def get_baseline_mod_model(frames, width, height, depth, classes):
+def get_experiment_model(frames, width, height, depth, classes):
 
     inputs = Input(shape=(frames, width, height, depth))
 
-    x = Conv3D(filters=16, kernel_size=(9,9,9), activation="relu")(inputs)
-    x = Conv3D(filters=32, kernel_size=(6,6,6), activation="relu")(x)
+    x = Conv3D(filters=8, kernel_size=3, activation="relu")(inputs)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.4)(x)
+    x = Dropout(0.6)(x)
 
-    x = Conv3D(filters=48, kernel_size=(6,6,6), activation="relu")(x)
-    x = Conv3D(filters=48, kernel_size=(6,6,3), activation="relu")(x)
+    x = Conv3D(filters=16, kernel_size=3, activation="relu")(x)
+    x = Conv3D(filters=16, kernel_size=3, activation="relu")(x)
     x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.6)(x)
 
-    x = Conv3D(filters=64, kernel_size=3, activation="relu")(x)
-    x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x) 
-    x = BatchNormalization()(x)
-    x = Dropout(0.4)(x)
+    x = Conv3D(filters=32, kernel_size=3, activation="relu")(x)
+    x = MaxPooling3D(pool_size=(2,2,2), padding='same')(x)
+    x = BatchNormalization()(x)    
+    x = Dropout(0.6)(x)
 
     x = Dense(units=64, activation="relu")(x)
     x = Flatten()(x)
-    x = Dropout(0.3)(x)
-
-    x = Dense(units=84, activation="relu")(x)
+    x = Dropout(0.6)(x)
 
     outputs = Dense(units=classes, activation="softmax")(x)
 
