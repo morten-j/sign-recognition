@@ -7,8 +7,6 @@ RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/r
 RUN apt update && \
     apt install -y wget curl
 
-
-
 # Make apt not ask for geographic area during install
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -18,16 +16,17 @@ RUN apt update && \
 RUN pip3 install --upgrade pip
 RUN pip3 install numpy opencv-python
 
-# Clone Openpose
+# Clone Openpose 1.6.0
 RUN git clone --branch v1.6.0 https://github.com/CMU-Perceptual-Computing-Lab/openpose
 WORKDIR /openpose
 RUN git submodule update --init --recursive --remote
 RUN apt-get install -y sudo
+
 # install openpose dependencies
 RUN chmod +x scripts/ubuntu/install_deps.sh
 RUN scripts/ubuntu/install_deps.sh
 
-# Install newer version of CMAKE since pre-installed is cucked 
+# Install newer version of CMAKE since the one pre-installed does not work with CAFFE 
 RUN apt remove --purge --auto-remove cmake
 RUN apt update && \
     apt install -y software-properties-common lsb-release && \
