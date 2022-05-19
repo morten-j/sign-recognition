@@ -9,12 +9,13 @@ import tempfile
 import os
 import utils
 import preprocess
+import time
+from datetime import timedelta
 
 
 IMG_SIZE = 64
 
-model = utils.load_model(os.path.join("models", "baseline"))
-
+model = utils.load_model(os.path.join("models", "baseline_64"))
 SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"]
 
 app = Sanic("MortenIsCringeApp")
@@ -136,7 +137,12 @@ async def predict_video(request: Request) -> HTTPResponse:
 
      # Expand dims size the model expects a list of videos and not just a video
     fixed_size = np.expand_dims(video, axis=0)
+    start_time = time.monotonic()
     prediction = model.predict(fixed_size)
+    end_time = time.monotonic()
+
+    print("[INFO] prediction took:")
+    print(timedelta(seconds=end_time - start_time))
 
     # Find index of the max value
     max_value_index = np.argmax(prediction)
