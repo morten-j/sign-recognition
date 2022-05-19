@@ -15,7 +15,7 @@ from datetime import timedelta
 
 IMG_SIZE = 64
 
-model = utils.load_model(os.path.join("models", "baseline_64"))
+model = utils.load_model(os.path.join("models", "baseline"))
 SIGN_LIST = ["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"]
 
 app = Sanic("MortenIsCringeApp")

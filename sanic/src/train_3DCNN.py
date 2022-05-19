@@ -17,6 +17,8 @@ ap.add_argument("-e", "--epoch", type=int, required=True,
 	help="How many epochs in this training?")
 ap.add_argument("-b", "--batch", type=int, required=True,
 	help="what batch size should be used")
+ap.add_argument("-l", "--load", required=True,
+	help="load dataset from pickle file")
 args = vars(ap.parse_args())
 
 IMG_SIZE = 64
@@ -29,20 +31,38 @@ LABELS = set(["book", "dog", "fish", "help", "man", "movie", "pizza", "woman"])
 
 
 print("[INFO] preparing dataset")
-train_videopaths = utils.getListOfFiles(os.path.join("./dataset", "train"))
-training_labels = utils.getListOfLabels(train_videopaths, LABELS)
+if args["load"] == "False":
+    train_videopaths = utils.getListOfFiles(os.path.join("./dataset", "train"))
+    training_labels = utils.getListOfLabels(train_videopaths, LABELS)
 
-test_videopaths = utils.getListOfFiles(os.path.join("./dataset", "test"))
-testing_labels = utils.getListOfLabels(test_videopaths, LABELS)
+    test_videopaths = utils.getListOfFiles(os.path.join("./dataset", "test"))
+    testing_labels = utils.getListOfLabels(test_videopaths, LABELS)
 
-# Convert labels to: [0,0,0,0,1,0,0,0] format
-lb = LabelBinarizer()
-train_labels = lb.fit_transform(training_labels)
-test_labels = lb.fit_transform(testing_labels)
+    # Convert labels to: [0,0,0,0,1,0,0,0] format
+    lb = LabelBinarizer()
+    train_labels = lb.fit_transform(training_labels)
+    test_labels = lb.fit_transform(testing_labels)
 
-# Load training and test dataset videos
-train_data = preprocess.prepare_all_videos(train_videopaths, resize=(IMG_SIZE, IMG_SIZE))
-test_data = preprocess.prepare_all_videos(test_videopaths, resize=(IMG_SIZE, IMG_SIZE))
+    utils.save_pickle_data(os.path.join("./data", "train_labels.pkl"), train_labels)
+    utils.save_pickle_data(os.path.join("./data", "test_labels.pkl"), test_labels)
+
+    # Load training and test dataset videos
+    train_data = preprocess.prepare_all_videos(train_videopaths, resize=(IMG_SIZE, IMG_SIZE))
+    test_data = preprocess.prepare_all_videos(test_videopaths, resize=(IMG_SIZE, IMG_SIZE))
+
+    utils.save_pickle_data(os.path.join("./data", "train_data.pkl"), train_data)
+    utils.save_pickle_data(os.path.join("./data", "test_data.pkl"), test_data)
+
+elif args["load"] == "True":
+    train_labels = utils.load_pickle_data(os.path.join("./data", "train_labels.pkl"))
+    test_labels = utils.load_pickle_data(os.path.join("./data", "test_labels.pkl"))
+    
+    train_data = utils.load_pickle_data(os.path.join("./data", "train_data.pkl"))
+    test_data = utils.load_pickle_data(os.path.join("./data", "test_data.pkl"))
+else:
+    print("[WARNING] no valid load option was used")
+    exit()
+
 
 print(f"Found {len(train_data)} videos for training")
 print(f"Found {len(test_data)} videos for testing/evaluation")

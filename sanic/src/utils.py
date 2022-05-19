@@ -1,5 +1,6 @@
 import os
 import keras
+import pickle
 import matplotlib.pyplot as plt
 import matplotlib.style as pltstyle
 
@@ -53,3 +54,11 @@ def load_model(path):
         return keras.models.load_model(path)
     else:
         return "this is cringe" 
+
+def save_pickle_data(path, objectToSave):
+    file = open(path, 'wb')
+    pickle.dump(objectToSave, file)
+
+def load_pickle_data(path):
+    file = open(path, 'rb')
+    return pickle.load(file)
