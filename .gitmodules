@@ -1,3 +1,0 @@
-[submodule "openpose/sign-language-recognition-service"]
-	path = openpose/sign-language-recognition-service
-	url = https://github.com/martinloenne/sign-language-recognition-service
