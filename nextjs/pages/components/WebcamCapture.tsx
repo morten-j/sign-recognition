@@ -65,7 +65,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
             // Send to /api/hands if should analyse, else send for video saving only.
             if (shouldAnalyse) {
 
-                const response = await fetch("http://localhost:8000/api/predict", 
+                const response = await fetch("http://localhost:8080/api/predict", 
                     {
                         method: "POST",
                         body: fd,
@@ -91,7 +91,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                 hideWebcam();
             } else {
                 
-                await fetch(`http://localhost:8000/api/savevideo?label=${signLabel}`, 
+                await fetch(`http://localhost:8080/api/savevideo?label=${signLabel}`, 
                     {
                         method: "POST",
                         body: fd,
