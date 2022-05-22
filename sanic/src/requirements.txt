@@ -1,14 +1,12 @@
 sanic[ext]
-tensorflow==2.8.0
-keras==2.8.0
+tensorflow-gpu
 numpy
 matplotlib
 pyqt5
-pandas
 opencv-python
 imageio
 imutils
-sklearn
 mediapipe
 more_itertools
 argparse
+sklearn
