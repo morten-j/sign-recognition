@@ -58,5 +58,7 @@ WORKDIR /sign-language-recognition-service
 COPY ./overrides/ .
 RUN pip3 install -r requirements.txt
 
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${PATH}"
+
 # Run the container forever
 CMD flask run

@@ -26,10 +26,13 @@ services:
     volumes:
       - ./openpose/sendVideo.py:/sendvideo/sendVideo.py
       - ./openpose/video/:/sendvideo/video
+      - ./openpose/the_test/:/the_test/
     environment:
       - "PYTHONUNBUFFERED=1"
       - LC_ALL=C.UTF-8
       - LANG=C.UTF-8
+    networks:
+      - net
     deploy:
       resources:
         reservations:

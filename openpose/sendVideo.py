@@ -1,8 +1,14 @@
 import base64
 import json
+import os
 import cv2
 import requests
 from requests import Response
+
+TEST_OPENPOSE = False
+TEST_3DCNN = True
+
+TEST_DATASET_PATH = "/the_test/"
 
 # Converts a base64 bytes file to its blob string representation
 def convert_base64_to_string_format(b64, type):
@@ -34,20 +40,50 @@ def extract_frames_from_video(video_path):
 
     return sequence
 
+def test_openpose():
+
+    correct = 0 # Counter for correct guesses
+    tested = 0 # Counter for amount tested
+
+    # Iterate over all subfolders to get all videos and send to openpose
+    for subdir, dirs, files in os.walk(TEST_DATASET_PATH):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+            if(filepath == f"{TEST_DATASET_PATH}.gitignore"):
+                continue
+            frames = extract_frames_from_video(filepath)
+
+            valid_base64_data = []
+            for frame in frames:
+                ret, buffer = cv2.imencode('.jpg', frame)
+                b64 = base64.b64encode(buffer)
+                valid_base64_data.append(convert_base64_to_string_format(b64, 'image/jpg'))
+
+            # sending get request and saving the response as response object
+            r: Response = requests.post(url="http://localhost:5000/recognize", data=json.dumps(valid_base64_data))
+
+            if("/the_test/" + r.text == subdir):
+                correct += 1
+            tested += 1
+
+            print(f"Sent: {filepath} and got response: {r.status_code} {r.reason} {r.text}. Amount tested: {tested} Amount correctly guessed: {correct}. That is {correct / tested * 100}%")
+
+def test_our_service():
+    # Iterate over all subfolders to get all videos and send to sanic
+    for subdir, dirs, files in os.walk(TEST_DATASET_PATH):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+            if(filepath == f"{TEST_DATASET_PATH}.gitignore"):
+                continue
+
+            # sending get request and saving the response as response object
+            file = {'video': open(filepath, 'rb')}
+            r: Response = requests.post(url="http://sanic:8000/api/predict", files=file)
+
+            print(f"Sent: {filepath} and got response: {r.status_code} {r.reason} {r.text}.")
 
 
-frames = extract_frames_from_video('./video/video.webm')
-
-valid_base64_data = []
-for frame in frames:
-    ret, buffer = cv2.imencode('.jpg', frame)
-    b64 = base64.b64encode(buffer)
-    valid_base64_data.append(convert_base64_to_string_format(b64, 'image/jpg'))
-
-
-
-# sending get request and saving the response as response object
-r: Response = requests.post(url="http://localhost:5000/recognize", data=json.dumps(valid_base64_data))
-
-print(f"response: {r.status_code} {r.reason} {r.text}")
-# extracting data in json format
+if TEST_OPENPOSE:
+    test_openpose()
+if TEST_3DCNN:
+    test_our_service()
