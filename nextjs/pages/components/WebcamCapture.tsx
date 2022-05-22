@@ -100,7 +100,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         method: "POST",
                         body: fd,
                     }
-                ).them(() => {
+                ).then(() => {
                     window.alert("Video saved on server!"); 
                     hideWebcam();
                 })
