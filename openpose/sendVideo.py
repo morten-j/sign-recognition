@@ -5,10 +5,14 @@ import cv2
 import requests
 from requests import Response
 
-TEST_OPENPOSE = False
-TEST_3DCNN = True
+TEST_OPENPOSE = True
+TEST_3DCNN = False
 
 TEST_DATASET_PATH = "/the_test/"
+
+def append_to_log(msg: str):
+    file_object = open('/sendvideo/video/sendinglog.txt', 'a')
+    file_object.write(msg)
 
 # Converts a base64 bytes file to its blob string representation
 def convert_base64_to_string_format(b64, type):
@@ -67,6 +71,7 @@ def test_openpose():
             tested += 1
 
             print(f"Sent: {filepath} and got response: {r.status_code} {r.reason} {r.text}. Amount tested: {tested} Amount correctly guessed: {correct}. That is {correct / tested * 100}%")
+            append_to_log(f"Sent file {filepath} and recieved prediction {r.text}. Amount tested: {tested} Amount correctly guessed: {correct}. That is {correct / tested * 100}% acc so far\n")
 
 def test_our_service():
     # Iterate over all subfolders to get all videos and send to sanic
