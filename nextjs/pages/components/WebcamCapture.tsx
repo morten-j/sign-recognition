@@ -103,7 +103,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                 ).then(() => {
                     window.alert("Video saved on server!"); 
                     hideWebcam();
-                })
+                });
             }
             setRecordedChunks([]);
         }
