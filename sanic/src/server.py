@@ -9,8 +9,12 @@ import tempfile
 import os
 import utils
 
-model = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
-feature_extractor = utils.build_feature_extractor() #TODO Fjern hvis den ikke skal bruges
+MAX_SEQ_LENGTH = 72
+NUM_FEATURES = 2048
+
+model3DCNN = utils.load_model(os.path.join("models", "test")) #TODO fix whhen there is a model
+modelRNN = utils.load_model(os.path.join("models", "test_run")) # Same^^
+feature_extractor = utils.build_feature_extractor()
 
 SIGN_LIST = ['book', 'dog', 'fish', 'help', 'man', 'movie', 'pizza', 'woman'] #TODO Check om rækkefølgen stadig passer med ny model
 
@@ -133,7 +137,65 @@ async def predict_video(request: Request) -> HTTPResponse:
 
      # Expand dims size the model expects a list of videos and not just a video
     fixed_size = np.expand_dims(video, axis=0)
-    prediction = model.predict(fixed_size)
+    prediction = model3DCNN.predict(fixed_size)
+
+    # Find index of the max value
+    max_value_index = np.argmax(prediction)
+
+    # Create object to be returned
+    returnObject = dict()
+    returnObject["prediction"] = SIGN_LIST[max_value_index]
+    returnObject["predictionList"] = prediction.tolist()[0] # Index because it is list of list
+
+    return json(returnObject, 200)
+
+@app.post("/api/predict/rnn")
+async def predict_video(request: Request) -> HTTPResponse:
+    """
+    Predict sign from video with RNN model
+    openapi:
+    operationId: predict_video_RNN
+    tags:
+      - Predict sign with RNN model
+    requestBody:
+        content:
+            multipart/form-data:
+                schema:
+                    type: object
+                    properties:
+                        video:
+                            type: string
+                            format: binary
+    responses:
+      '200':
+        description: returns 200 on successful prediction attempt by model
+    """
+    
+    # Load video
+    videofile = request.files.get("video")
+
+    with tempfile.NamedTemporaryFile() as temp:
+        temp.write(videofile.body) # write the video into a temporary file
+        frames = (utils.load_video(temp.name))
+
+    # Prepare frame mask and features arrays
+    frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
+    frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
+
+    # Determine the video length
+    video_length = frames.shape[0]
+    length = min(MAX_SEQ_LENGTH, video_length) #TODO MAYBE DELETE
+
+    # Extract features by going through each frame and feature extract to save features in frame features array to be used for prediction
+    for j in range(length):
+        frame_features[0,j,:] = feature_extractor.predict(frames[None, j, :])
+    frame_mask[0, :length] = 1
+
+    # Make video data tupple containing frame features and mask
+    video_data = (frame_features, frame_mask)
+
+    # Predict sign of video
+    prediction = modelRNN.predict(video_data)
 
     # Find index of the max value
     max_value_index = np.argmax(prediction)
