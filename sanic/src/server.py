@@ -158,7 +158,7 @@ async def predict_video(request: Request) -> HTTPResponse:
 
     # Combining predictions (floats) with their sign. Otherwise a duplicate SIGN_LIST would be needed on frontend
     for index, sign in enumerate(SIGN_LIST):
-        prediction_objects.append({ sign : all_predictions[index] })
+        prediction_objects.append({ "certainty" : all_predictions[index], "sign" : sign })
 
     returnObject["allPredictions"] = prediction_objects
 

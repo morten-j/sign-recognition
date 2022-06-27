@@ -71,6 +71,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         body: fd,
                     }
                 ).then(response => response.json()).then((jsonData) => {
+                    console.log(jsonData)
                     const predictObject: ResponseJSON = jsonData;
                     
                     if (predictObject.prediction == signLabel) {
@@ -81,8 +82,8 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         const predictions = predictObject.allPredictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
 
                         // Build multiline alert string with. Skip first because it is .prediction
-                        for (let i=1; i < predictions.length; i++)
-                            alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%\n`;
+                        for (let i=0; i < predictions.length; i++)
+                            alertString += `${predictions[i].sign}: ${(predictions[i].certainty*100).toFixed(2)}%\n`;
 
                         window.alert(alertString);
                     }
