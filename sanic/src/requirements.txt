@@ -12,3 +12,4 @@ more_itertools
 argparse
 youtube-dl
 sklearn
+protobuf==3.20.*
