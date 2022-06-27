@@ -14,8 +14,26 @@ services:
     volumes:
       - ./sanic/src/:/sanic/src
     ports: 
-      - 8000:8000
+      - 8080:8080
     networks:
       - net
+  openpose:
+    profiles:
+      - openpose
+    build: ./openpose
+    ports:
+      - 5000:5000
+    volumes:
+      - ./openpose/sendVideo.py:/sendvideo/sendVideo.py
+      - ./openpose/video/:/sendvideo/video
+    environment:
+      - "PYTHONUNBUFFERED=1"
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
 networks:
    net:
