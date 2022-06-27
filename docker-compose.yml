@@ -14,7 +14,7 @@ services:
     volumes:
       - ./sanic/src/:/sanic/src
     ports: 
-      - 8080:8000
+      - 8000:8000
     networks:
       - net
   openpose:
