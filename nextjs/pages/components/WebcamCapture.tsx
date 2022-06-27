@@ -49,7 +49,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
 
     }, [mediaRecorderRef, webcamRef, setIsCapturing]);
 
-    const handleDownload = React.useCallback(async () => {
+    const handleDownload = React.useCallback(() => {
         if (recordedChunks.length) {
             const blob = new Blob(recordedChunks, {
                 type: "video/webm"
@@ -65,40 +65,45 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
             // Send to /api/hands if should analyse, else send for video saving only.
             if (shouldAnalyse) {
 
-                const response = await fetch("http://localhost:8080/api/predict", 
+                fetch("http://localhost:8080/api/predict", 
                     {
                         method: "POST",
                         body: fd,
                     }
-                );
+                ).then((response) => {
 
-                const jsonData = await response.json();
-                const predictObject: ResponseJSON = JSON.parse(jsonData);
-                
-                if (predictObject.prediction == signLabel) {
-                    window.alert("You did the sign correctly!")
-                } else {
+                    response.json().then((jsonData) => {
 
-                    let alertString: string = `Incorrect, recognised sign ${predictObject.prediction} and not ${signLabel}\n`;
-                    const predictions = predictObject.allPredictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
+                   
+                        const predictObject: ResponseJSON = JSON.parse(jsonData);
+                        
+                        if (predictObject.prediction == signLabel) {
+                            window.alert("You did the sign correctly!")
+                        } else {
 
-                    // Build multiline alert string with. Skip first because it is .prediction
-                    for (let i=1; i < predictions.length; i++)
-                        alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%\n`;
+                            let alertString: string = `Incorrect, recognised sign ${predictObject.prediction} and not ${signLabel}\n`;
+                            const predictions = predictObject.allPredictions.sort((a, b) => (a.certainty > b.certainty ? -1 : 1));
 
-                    window.alert(alertString);
-                }
+                            // Build multiline alert string with. Skip first because it is .prediction
+                            for (let i=1; i < predictions.length; i++)
+                                alertString += `${predictions[i].sign}: ${predictions[i].certainty*100}%\n`;
+
+                            window.alert(alertString);
+                        }
+                    });
+                });
                 hideWebcam();
             } else {
                 
-                await fetch(`http://localhost:8080/api/savevideo?label=${signLabel}`, 
+                fetch(`http://localhost:8080/api/savevideo?label=${signLabel}`, 
                     {
                         method: "POST",
                         body: fd,
                     }
-                )
-                window.alert("Video saved on server!"); 
-                hideWebcam();
+                ).then(() => {
+                    window.alert("Video saved on server!"); 
+                    hideWebcam();
+                });
             }
             setRecordedChunks([]);
         }
