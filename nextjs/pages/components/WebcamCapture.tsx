@@ -71,7 +71,7 @@ export default function WebcamCapture({ isCapturing, setIsCapturing, hideWebcam,
                         body: fd,
                     }
                 ).then(response => response.json()).then((jsonData) => {
-                    const predictObject: ResponseJSON = JSON.parse(jsonData);
+                    const predictObject: ResponseJSON = jsonData;
                     
                     if (predictObject.prediction == signLabel) {
                         window.alert("You did the sign correctly!")
